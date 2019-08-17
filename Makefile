@@ -30,6 +30,7 @@ code-analysis:
 	pylint -E clover/ -d E1103,E0611,E1101
 
 upload-pypi:
+	rm -rf ./build ./dist
 	python setup.py sdist bdist_wheel
 	twine upload dist/*
 
