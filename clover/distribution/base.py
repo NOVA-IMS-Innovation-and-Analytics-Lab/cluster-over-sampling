@@ -157,7 +157,7 @@ class BaseDistributor(BaseEstimator):
 
         y : array-like, shape (n_samples,)
             Corresponding label for each sample in X.
-        
+
         labels : array-like, shape (n_samples,)
             Labels of each sample.
 

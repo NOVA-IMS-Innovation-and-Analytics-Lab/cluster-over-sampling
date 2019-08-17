@@ -40,7 +40,7 @@ class DensityDistributor(BaseDistributor):
 
     sparsity_based : bool, optional (default=True)
         When ``True`` clusters receive generated samples that are inversly
-        proportional to their density. When ``False`` clusters receive 
+        proportional to their density. When ``False`` clusters receive
         generated samples that are proportional to their density.
 
     distribution_ratio : float, optional (default=1.0)

@@ -315,7 +315,8 @@ class BaseClusterOverSampler(BaseOverSampler):
         # Check clusterer and distributor
         if self.clusterer is None and self.distributor is not None:
             raise ValueError(
-                'Distributor was found but clusterer is set to `None`. Set parameter `distributor` to `None` or use a clusterer.'
+                'Distributor was found but clusterer is set to `None`. '
+                'Set parameter `distributor` to `None` or use a clusterer.'
             )
         elif self.clusterer is None and self.distributor is None:
             self.clusterer_ = _SingleLabelClusterer()
