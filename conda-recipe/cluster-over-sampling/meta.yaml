@@ -1,10 +1,10 @@
 package:
   name: cluster-over-sampling
-  version: "0.1.1"
+  version: "0.1.2"
 
 source:
-  url: "https://files.pythonhosted.org/packages/d6/ff/5359a80c153c66126c6054c498d36068c553776d0a2d8084ceb1cc77cab0/cluster-over-sampling-0.1.1.tar.gz"
-  sha256: "03832a637ed52abe933925a0f0fb070126ee1085b6c5cf90d9a227392448efae"
+  url: "https://files.pythonhosted.org/packages/4b/db/67eadb06d605dfd8ada38e49af6e327945d01492897a0c821e0ac7fdd9f9/cluster-over-sampling-0.1.2.tar.gz"
+  sha256: "5a2e19b97e6fdcb29674fbdd9e79803021e39bd93051d4d6d95743925401d115"
 
 build:
   number: 0
@@ -12,18 +12,18 @@ build:
 
 requirements:
   host:
-    - imbalanced-learn >=0.4.3
+    - imbalanced-learn >=0.4.3, <=0.5.0
     - numpy >=1.1
     - pip
     - python
-    - scikit-learn >=0.21
+    - scikit-learn >=0.21, <=0.21.3
     - scipy >=0.17
 
   run:
-    - imbalanced-learn >=0.4.3
+    - imbalanced-learn >=0.4.3, <=0.5.0
     - numpy >=1.1
     - python
-    - scikit-learn >=0.21
+    - scikit-learn >=0.21, <=0.21.3
     - scipy >=0.17
 
 test:

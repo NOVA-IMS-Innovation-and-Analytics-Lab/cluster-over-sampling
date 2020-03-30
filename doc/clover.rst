@@ -106,10 +106,10 @@ i.e. when ``clusterer=None``, is equivalent to the corresponding
 imbalanced-learn over-sampler::
 
    >>> import numpy as np
-   >>> from imblearn.over_sampling import BorderlineSMOTE
-   >>> X_res_im, y_res_im = BorderlineSMOTE(random_state=5).fit_resample(X, y)
-   >>> from clover.over_sampling import BorderlineSMOTE
-   >>> X_res_cl, y_res_cl = BorderlineSMOTE(random_state=5).fit_resample(X, y)
+   >>> from imblearn.over_sampling import SMOTE
+   >>> X_res_im, y_res_im = SMOTE(random_state=5).fit_resample(X, y)
+   >>> from clover.over_sampling import SMOTE
+   >>> X_res_cl, y_res_cl = SMOTE(random_state=5).fit_resample(X, y)
    >>> np.testing.assert_equal(X_res_im, X_res_cl)
    >>> np.testing.assert_equal(y_res_im, y_res_cl)
 
