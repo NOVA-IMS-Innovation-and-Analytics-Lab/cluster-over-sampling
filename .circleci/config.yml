@@ -14,6 +14,7 @@ jobs:
             conda update --yes --quiet conda
             conda create -n testenv --yes --quiet python=3
             source activate testenv
+            pip install cython
             conda install --yes pip numpy scipy scikit-learn matplotlib sphinx sphinx_rtd_theme numpydoc pillow pandas
             conda install --yes -c conda-forge imbalanced-learn
             pip install sphinx-gallery
