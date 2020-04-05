@@ -5,27 +5,34 @@
 .. _clover:
 
 ==============================
-Clustering based over-sampling
+Clustering-based over-sampling
 ==============================
 
 A practical guide
 -----------------
 
+.. currentmodule:: clover.over_sampling
+
 One way to fight the imbalanced learning problem is to generate new samples in
 the classes which are under-represented. Many algorithms have been proposed for
 this task, tend to generate unnecessary noise and ignore the within class
-imbalance problem. The package cluster-over-sampling extends the functionality
-of imbalanced-learn_'s over-samplers by introducing the ``clusterer`` and
-``distributor`` parameters::
+imbalance problem. The package `cluster-over-sampling` extends the functionality
+of imbalanced-learn_'s over-samplers by introducing the 
+:class:`ClusterOverSampler` class. An instance of this
+class is created by defining the ``oversampler`` parameter as well as the 
+``clusterer`` and ``distributor`` parameters::
 
    >>> from collections import Counter
    >>> from sklearn.datasets import make_classification
    >>> from sklearn.cluster import KMeans
-   >>> from clover.over_sampling import SMOTE
+   >>> from imblearn.over_sampling import SMOTE
+   >>> from clover.over_sampling import ClusterOverSampler
    >>> from clover.distribution import DensityDistributor
    >>> X, y = make_classification(n_classes=3, weights=[0.10, 0.10, 0.80], random_state=0, n_informative=10)
-   >>> kmeans_smote = SMOTE(clusterer=KMeans(random_state=1), distributor=DensityDistributor())
-   >>> X_resampled, y_resampled = kmeans_smote.fit_resample(X, y)
+   >>> print(sorted(Counter(y).items()))
+   [(0, 10), (1, 10), (2, 80)]
+   >>> clovrs = ClusterOverSampler(oversampler=SMOTE(random_state=5), clusterer=KMeans(random_state=9), distributor=DensityDistributor())
+   >>> X_resampled, y_resampled = clovrs.fit_resample(X, y)
    >>> print(sorted(Counter(y_resampled).items()))
    [(0, 80), (1, 80), (2, 80)]
 
@@ -37,36 +44,50 @@ to train a classifier::
    >>> clf.fit(X_resampled, y_resampled) # doctest : +ELLIPSIS
    DecisionTreeClassifier(...)
 
-.. currentmodule:: clover.over_sampling
+For convenience reasons, `cluster-over-sampling` provides classes that implement the
+algorithms SOMO and KMeans-SMOTE as described in [DB2017]_ and [DB2018]_,
+respectively::
 
-Parameter ``clusterer``
------------------------
+   >>> from clover.over_sampling import KMeansSMOTE
+   >>> kmeans_smote = KMeansSMOTE(random_state=15)
+   >>> X_resampled, y_resampled = kmeans_smote.fit_resample(X, y)
+   >>> print(sorted(Counter(y_resampled).items()))
+   [(0, 80), (1, 80), (2, 80)]
 
-The parameter ``clusterer`` is used to define the clustering algorithm that is
-applied to the input matrix. All of scikit-learn_'s clusterers are supported.
-For example, if we select :class:`SMOTE` [CBHK2002]_ as the over-sampler and
+Combining over-sampling and clustering algorithms
+-------------------------------------------------
+
+The :class:`ClusterOverSampler` class allows to combine
+imbalanced-learn_'s oversamplers with scikit-learn_'s clusterers. This achieved
+through the use of the parameters ``oversampler`` and ``clusterer``. For
+example, if we select 
+`SMOTE
+<https://imbalanced-learn.readthedocs.io/en/stable/generated/imblearn.over_sampling.SMOTE.html>`_
+[CBHK2002]_ as the over-sampler and 
 `KMeans <https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html>`_
-as the clustering algorithm than the clustering based over-sampling algorithm
-described in [DB2018]_ is created::
+as the clustering algorithm than the clustering based over-sampling algorithm 
+KMeans-SMOTE as described in [DB2018]_ is created::
 
    >>> from collections import Counter
    >>> from sklearn.datasets import make_classification
    >>> from sklearn.cluster import KMeans
-   >>> from clover.over_sampling import SMOTE
+   >>> from imblearn.over_sampling import SMOTE
+   >>> from clover.over_sampling import ClusterOverSampler
    >>> from clover.distribution import DensityDistributor
    >>> X, y = make_classification(n_classes=3, weights=[0.10, 0.10, 0.80], random_state=0, n_informative=10)
-   >>> kmeans_smote = SMOTE(clusterer=KMeans(random_state=2), distributor=DensityDistributor(), random_state=3)
-   >>> X_resampled, y_resampled = kmeans_smote.fit_resample(X, y)
+   >>> clovrs = ClusterOverSampler(oversampler=SMOTE(random_state=1), clusterer=KMeans(random_state=2), distributor=DensityDistributor(), random_state=3)
+   >>> X_resampled, y_resampled = clovrs.fit_resample(X, y)
    >>> print(sorted(Counter(y_resampled).items()))
    [(0, 80), (1, 80), (2, 80)]
 
 Similarly, any other combination of an over-sampler and clusterer can be
 selected::
 
-   >>> from clover.over_sampling import RandomOverSampler
+   >>> from imblearn.over_sampling import RandomOverSampler
    >>> from sklearn.cluster import AffinityPropagation
-   >>> affinity_ros = RandomOverSampler(clusterer=AffinityPropagation(), distributor=DensityDistributor(), random_state=4)
-   >>> X_resampled, y_resampled = affinity_ros.fit_resample(X, y)
+   >>> from clover.over_sampling import ClusterOverSampler
+   >>> clovrs = ClusterOverSampler(oversampler=RandomOverSampler(random_state=13), clusterer=AffinityPropagation(), distributor=DensityDistributor(), random_state=4)
+   >>> X_resampled, y_resampled = clovrs.fit_resample(X, y)
    >>> print(sorted(Counter(y_resampled).items()))
    [(0, 80), (1, 80), (2, 80)]
 
@@ -76,40 +97,53 @@ inter-cluster artificial data as suggested in [DB2017]_.
 
 .. currentmodule:: clover.distribution
 
-Parameter ``distributor``
--------------------------
+Additionally, the parameter ``distributor`` is used to define the distribution of the
+generated samples to the clusters. The :class:`DensityDistributor` class
+implements a density based distribution::
 
-The parameter ``distributor`` is used to define the distribution of the
-generated samples to the clusters. The class :class:`DensityDistributor`
-is provided but any other distributor can be defined by extending the
-:class:`BaseDistributor` class::
-
-   >>> distributor = DensityDistributor()
-   >>> clusterer = KMeans(n_clusters=6, random_state=1).fit(X, y)
+   >>> distributor = DensityDistributor(distances_exponent=0)
+   >>> clusterer = KMeans(n_clusters=5, random_state=1).fit(X, y)
    >>> labels = clusterer.labels_
    >>> intra_distribution, inter_distribution = distributor.fit_distribute(X, y, labels, neighbors=None)
    >>> print(distributor.filtered_clusters_)
-   [(3, 0), (3, 1)]
+   [(2, 1), (1, 0), (1, 1), (0, 0)]
    >>> print(distributor.clusters_density_)
-   {(3, 0): 6.0, (3, 1): 6.0}
+   {(2, 1): 3.0, (1, 0): 6.0, (1, 1): 7.0, (0, 0): 2.0}
    >>> print(intra_distribution)
-   {(3, 0): 1.0, (3, 1): 1.0}
+   {(2, 1): 0.7, (1, 0): 0.25, (1, 1): 0.3, (0, 0): 0.75}
    >>> print(inter_distribution)
    {}
+
+Also any other distributor can be defined by extending the 
+:class:`BaseDistributor` class.
+
+Basic algorithms
+----------------
+
+The basic clustering-based over-samplers SOMO [DB2017]_, KMeans-SMOTE [DB2018]_
+and Geometric SOMO are implemented. The corresponding classes :class:`SOMO`,
+:class:`KMeansSMOTE` and :class:`GeometricSOMO` include all the appropriate
+parameters::
+
+   >>> from clover.over_sampling import KMeansSMOTE
+   >>> kmeans_smote = KMeansSMOTE(kmeans_estimator=10, imbalance_ratio_threshold=0.9, random_state=15)
+   >>> X_resampled, y_resampled = kmeans_smote.fit_resample(X, y)
+   >>> print(sorted(Counter(y_resampled).items()))
+   [(0, 80), (1, 80), (2, 80)]
 
 Compatibility
 -------------
 
-The API of cluster-over-sampling is fully compatible to imbalanced-learn.
+The API of `cluster-over-sampling` is fully compatible to imbalanced-learn_.
 Any over-sampler from cluster-over-sampling that does not use clustering,
 i.e. when ``clusterer=None``, is equivalent to the corresponding
-imbalanced-learn over-sampler::
+imbalanced-learn_'s over-sampler::
 
    >>> import numpy as np
    >>> from imblearn.over_sampling import SMOTE
    >>> X_res_im, y_res_im = SMOTE(random_state=5).fit_resample(X, y)
-   >>> from clover.over_sampling import SMOTE
-   >>> X_res_cl, y_res_cl = SMOTE(random_state=5).fit_resample(X, y)
+   >>> from clover.over_sampling import ClusterOverSampler
+   >>> X_res_cl, y_res_cl = ClusterOverSampler(SMOTE(random_state=5), clusterer=None).fit_resample(X, y)
    >>> np.testing.assert_equal(X_res_im, X_res_cl)
    >>> np.testing.assert_equal(y_res_im, y_res_cl)
 

@@ -1,10 +1,10 @@
+.. _api_description:
+
 ===
 API
 ===
 
 This is the full API documentation of the `cluster-over-sampling` package.
-
-.. _api:
 
 :mod:`clover.distribution`: Distribution of generated samples
 -------------------------------------------------------------
@@ -34,8 +34,8 @@ This is the full API documentation of the `cluster-over-sampling` package.
    :toctree: generated/
    :template: class.rst
 
-    over_sampling.RandomOverSampler
-    over_sampling.SMOTE
-    over_sampling.BorderlineSMOTE
-    over_sampling.SVMSMOTE
-    over_sampling.ADASYN
+    over_sampling.ClusterOverSampler
+    over_sampling.KMeansSMOTE
+    over_sampling.SOMO
+    over_sampling.GeometricSOMO
+    

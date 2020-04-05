@@ -1,9 +1,9 @@
 """
-Includes the BaseDistributor class.
+Base class for distributors.
 """
 
 # Author: Georgios Douzas <gdouzas@icloud.com>
-# License: BSD 3 clause
+# License: MIT
 
 from collections import Counter
 
@@ -15,6 +15,9 @@ from sklearn.utils import check_X_y, check_array
 class BaseDistributor(BaseEstimator):
     """The base class for distributors. A distributor sets the proportion of
     samples to be generated inside each cluster and between clusters.
+
+    Warning: This class should not be used directly. Use the derive classes
+    instead.
     """
 
     def _intra_distribute(self, X, y, labels, neighbors):

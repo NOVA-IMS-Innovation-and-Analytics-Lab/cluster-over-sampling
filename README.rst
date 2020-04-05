@@ -41,11 +41,11 @@ cluster-over-sampling
 =====================
 
 Implementation of a general interface for clustering based over-sampling
-algorithms [1]_, [2]_. It is compatible with scikit-learn_ and
+algorithms as described in [1]_, [2]_. It is compatible with scikit-learn_ and
 imbalanced-learn_.
 
-Documentation
--------------
+Instructions
+------------
 
 Installation documentation, API documentation, and examples can be found on the
 documentation_.
@@ -60,7 +60,12 @@ are the following:
 
 - numpy(>=1.1)
 - scikit-learn(>=0.21)
-- imbalanced-learn(>=0.4.3)
+- imbalanced-learn(>=0.6.0)
+
+Optional dependencies for SOMO and Geometric SOMO are the following:
+
+- som-learn(>=0.1.1)
+- geometric-smote(>=0.1.3)
 
 Additionally, to run the examples, you need matplotlib(>=2.0.0) and
 pandas(>=0.22).
@@ -138,7 +143,8 @@ along line segments that join minority class instances. SMOTE addresses only
 the issue of between-classes imbalance. On the other hand, by clustering the
 input space and applying any over-sampling algorithm for each resulting cluster
 with appropriate resampling ratio, the within-classes imbalanced issue can be
-addressed.
+addressed. SOMO [1]_ and KMeans-SMOTE [2]_ are specific realizations of this
+approach.
 
 References:
 -----------

@@ -1,9 +1,9 @@
 """
-Includes the DensityDistributor class.
+Implementation of the DensityDistributor class.
 """
 
 # Author: Georgios Douzas <gdouzas@icloud.com>
-# License: BSD 3 clause
+# License: MIT
 
 from collections import Counter
 from itertools import product
@@ -20,68 +20,123 @@ class DensityDistributor(BaseDistributor):
 
     Samples are distributed based on the density of clusters.
 
+    Read more in the :ref:`user guide <user_guide>`.
+
     Parameters
     ----------
-    filtering_threshold : float or 'auto', optional (default=1.0)
-        The threshold of a cluster. It can be any non-negative number. If
-        ``'auto'``, the filtering threshold is calculated from the imbalance
-        ratio of the target for the binary case or the maximum imbalance ratio
-        of the target for the multiclass case. Any cluster that has an imbalance
-        ratio smaller than the filtering threshold is identified as a filtered
-        cluster and can be potentially used to generate minority class
-        instances. Higher values increase the number of filtered clusters.
+    filtering_threshold : float or 'auto', default='auto'
+        The threshold of a filtered cluster. It can be any non-negative number or
+        ``'auto'`` to be calculated automatically.
 
-    distances_exponent : float or 'auto', optional (default=0.0)
+        - If ``'auto'``, the filtering threshold is calculated from the imbalance
+          ratio of the target for the binary case or the maximum of the target's
+          imbalance ratios for the multiclass case.
+
+        - If ``float`` then it is manually set to this number.
+
+        Any cluster that has an imbalance ratio smaller than the filtering threshold is
+        identified as a filtered cluster and can be potentially used to generate
+        minority class instances. Higher values increase the number of filtered
+        clusters.
+
+    distances_exponent : float or 'auto', default='auto'
         The exponent of the mean distance in the density calculation. It can be
-        any non-negative number. If ``'auto'`` then it is set equal to the number of
-        features. Higher values make the calculation of density more sensitive
-        to the cluster's size i.e. clusters with large mean euclidean distance
-        between samples are penalized.
+        any non-negative number or ``'auto'`` to be calculated automatically.
 
-    sparsity_based : bool, optional (default=True)
-        When ``True`` clusters receive generated samples that are inversly
-        proportional to their density. When ``False`` clusters receive
-        generated samples that are proportional to their density.
+        - If ``'auto'`` then it is set equal to the number of
+          features. Higher values make the calculation of density more sensitive
+          to the cluster's size i.e. clusters with large mean euclidean distance
+          between samples are penalized.
 
-    distribution_ratio : float, optional (default=1.0)
+        - If ``float`` then it is manually set to this number.
+
+    sparsity_based : bool, default=True
+        Whether sparse clusters receive more generated samples.
+
+        - When ``True`` clusters receive generated samples that are inversely
+          proportional to their density.
+
+        - When ``False`` clusters receive
+          generated samples that are proportional to their density.
+
+    distribution_ratio : float, default=1.0
         The ratio of intra-cluster to inter-cluster generated samples. It is a
-        number in the :math:`[0.0, 1.0]` range. As the number increases more
-        intra-cluster samples are generated. Inter-cluster generation, i.e. when
-        ``distribution_ratio`` is less than ``1.0``, requires a neighborhood structure
-        for the clusters and it will raise an error when it is not found.
+        number in the :math:`[0.0, 1.0]` range. The default value is ``1.0``, a
+        case corresponding to only intra-cluster generation. As the number
+        decreases, less intra-cluster samples are generated. Inter-cluster
+        generation, i.e. when ``distribution_ratio`` is less than ``1.0``,
+        requires a neighborhood structure for the clusters, i.e. a
+        ``neighbors_`` attribute should be created after fitting and it will
+        raise an error when it is not found.
 
     Attributes
     ----------
+    clusters_density_ : dict
+        Each dict key is a multi-label tuple of shape ``(cluster_label,
+        class_label)``, while the values correspond to the density.
+
+    distances_exponent_ : float
+        Actual exponent of the mean distance used in the calculations.
+
+    distribution_ratio_ : float
+        A copy of the parameter in the constructor.
+
+    filtered_clusters_ : list
+        Each element is a tuple of ``(cluster_label, class_label)`` pairs.
+
+    filtering_threshold_ : float
+        Actual filtering threshold used in the calculations.
+
+    inter_distribution_ : dict
+        Each dict key is a multi-label tuple of
+        shape ``((cluster_label1, cluster_label2), class_label)``.
+
+    intra_distribution_ : dict
+        Each dict key is a multi-label tuple of shape ``(cluster_label,
+        class_label)``.
+
+    labels_ : array, shape (n_samples,)
+        Labels of each sample.
 
     majority_class_label_ : int
         The majority class label.
 
-    class_labels_ : array, shape (n_classes, )
-        An array of unique class labels.
-
     n_samples_ : int
         The number of samples.
-
-    labels_ : array, shape (n_samples,)
-        Labels of each sample.
 
     neighbors_ : array, (n_neighboring_pairs, 2)
         An array that contains all neighboring pairs. Each row is
         a unique neighboring pair.
 
-    intra_distribution_ : dict
-        Each dict key is a multi-label tuple of shape ``(cluster_label, class_label)``
+    sparsity_based_ : bool
+        A copy of the parameter in the constructor.
 
-    inter_distribution_ : dict
-        Each dict key is a multi-label tuple of
-        shape ``((cluster_label1, cluster_label2), class_label)``
+    unique_class_labels_ :  array, shape (n_classes, )
+        An array of unique class labels.
 
+    unique_cluster_labels_ : array, shape (n_clusters, )
+        An array of unique cluster labels.
+
+    Examples
+    --------
+    >>> from clover.distribution import DensityDistributor
+    >>> from sklearn.datasets import load_iris
+    >>> from sklearn.cluster import KMeans
+    >>> X, y = load_iris(return_X_y=True)
+    >>> labels = KMeans(random_state=0).fit_predict(X, y)
+    >>> density_distributor = DensityDistributor().fit(X, y, labels)
+    >>> density_distributor.filtered_clusters_
+    [(7, 1), (4, 1), (3, 1), (1, 1), (6, 2), (1, 2), (2, 2), (4, 2)]
+    >>> density_distributor.intra_distribution_
+    {(7, 1): 0.066096796165... (4, 2): 0.0911085147...}
+    >>> density_distributor.inter_distribution_
+    {}
     """
 
     def __init__(
         self,
-        filtering_threshold=1.0,
-        distances_exponent=0.0,
+        filtering_threshold='auto',
+        distances_exponent='auto',
         sparsity_based=True,
         distribution_ratio=1.0,
     ):

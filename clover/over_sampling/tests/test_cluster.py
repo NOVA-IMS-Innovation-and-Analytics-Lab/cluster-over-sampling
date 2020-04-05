@@ -1,5 +1,5 @@
 """
-Test the base module.
+Test the cluster module.
 """
 
 from collections import OrderedDict, Counter
@@ -11,22 +11,23 @@ from sklearn.base import clone
 from sklearn.cluster import KMeans
 from sklearn.datasets import make_classification
 from sklearn.neighbors import NearestNeighbors
-from imblearn.over_sampling import RandomOverSampler as _RandomOverSampler
-
-from clover.over_sampling.base import (
-    modify_nn,
-    clone_modify,
-    generate_in_cluster,
-    extract_intra_data,
-    extract_inter_data,
-)
-from clover.over_sampling.monkey_patching import (
+from sklearn.exceptions import FitFailedWarning
+from imblearn.over_sampling import (
     RandomOverSampler,
     SMOTE,
     BorderlineSMOTE,
     SVMSMOTE,
-    ADASYN,
 )
+
+from clover.over_sampling._cluster import (
+    _modify_nn,
+    _clone_modify,
+    _generate_in_cluster,
+    _extract_intra_data,
+    _extract_inter_data,
+    ClusterOverSampler,
+)
+from clover.distribution._density import DensityDistributor
 
 RANDOM_STATE = 1
 X, y = make_classification(
@@ -41,39 +42,38 @@ X, y = make_classification(
 CLUSTERER = KMeans(n_clusters=5, n_init=1, random_state=RANDOM_STATE)
 OVERSAMPLERS = [
     RandomOverSampler(random_state=RANDOM_STATE),
-    RandomOverSampler(random_state=RANDOM_STATE, clusterer=CLUSTERER),
     SMOTE(random_state=RANDOM_STATE),
-    SMOTE(random_state=RANDOM_STATE, clusterer=CLUSTERER),
     BorderlineSMOTE(random_state=RANDOM_STATE),
-    BorderlineSMOTE(random_state=RANDOM_STATE, clusterer=CLUSTERER),
     SVMSMOTE(random_state=RANDOM_STATE),
-    SVMSMOTE(random_state=RANDOM_STATE, clusterer=CLUSTERER),
-    ADASYN(random_state=RANDOM_STATE),
-    ADASYN(random_state=RANDOM_STATE, clusterer=CLUSTERER),
+]
+CLUSTER_OVERSAMPLERS = [
+    ClusterOverSampler(
+        RandomOverSampler(random_state=RANDOM_STATE), clusterer=CLUSTERER
+    ),
+    ClusterOverSampler(SMOTE(random_state=RANDOM_STATE), clusterer=CLUSTERER),
+    ClusterOverSampler(BorderlineSMOTE(random_state=RANDOM_STATE), clusterer=CLUSTERER),
+    ClusterOverSampler(SVMSMOTE(random_state=RANDOM_STATE), clusterer=CLUSTERER),
 ]
 
 
 def test_modify_nn_object():
     """Test the modification of nn object."""
-    assert modify_nn(NearestNeighbors(5), 3).n_neighbors == 2
-    assert modify_nn(NearestNeighbors(3), 3).n_neighbors == 2
-    assert modify_nn(NearestNeighbors(2), 5).n_neighbors == 2
+    assert _modify_nn(NearestNeighbors(5), 3).n_neighbors == 2
+    assert _modify_nn(NearestNeighbors(3), 3).n_neighbors == 2
+    assert _modify_nn(NearestNeighbors(2), 5).n_neighbors == 2
 
 
 def test_modify_nn_int():
     """Test the modification of integer nn."""
-    assert modify_nn(5, 3) == 2
-    assert modify_nn(3, 3) == 2
-    assert modify_nn(2, 5) == 2
+    assert _modify_nn(5, 3) == 2
+    assert _modify_nn(3, 3) == 2
+    assert _modify_nn(2, 5) == 2
 
 
-@pytest.mark.parametrize(
-    'oversampler', [ovs for ovs in OVERSAMPLERS if isinstance(ovs, RandomOverSampler)]
-)
-def test_clone_modify_ros(oversampler):
+def test_clone_modify_ros():
     """Test the cloning and modification of random oversampler."""
-    cloned_oversampler = clone_modify(oversampler, None, None)
-    assert isinstance(cloned_oversampler, _RandomOverSampler)
+    cloned_oversampler = _clone_modify(OVERSAMPLERS[0], None, None)
+    assert isinstance(cloned_oversampler, RandomOverSampler)
 
 
 @pytest.mark.parametrize(
@@ -84,8 +84,8 @@ def test_clone_modify_single_min_sample(oversampler):
     """Test the cloning and modification for one minority class sample."""
     class_label = 1
     y_in_cluster = np.array([0, 0, 0, 0, 1, 2, 2, 2])
-    cloned_oversampler = clone_modify(oversampler, class_label, y_in_cluster)
-    assert isinstance(cloned_oversampler, _RandomOverSampler)
+    cloned_oversampler = _clone_modify(oversampler, class_label, y_in_cluster)
+    assert isinstance(cloned_oversampler, RandomOverSampler)
 
 
 @pytest.mark.parametrize(
@@ -97,7 +97,7 @@ def test_clone_modify_neighbors(oversampler):
     class_label = 2
     y_in_cluster = np.array([0, 0, 0, 0, 1, 2, 2, 2])
     n_minority_samples = Counter(y_in_cluster)[class_label]
-    cloned_oversampler = clone_modify(oversampler, class_label, y_in_cluster)
+    cloned_oversampler = _clone_modify(oversampler, class_label, y_in_cluster)
     assert isinstance(cloned_oversampler, oversampler.__class__)
     if hasattr(cloned_oversampler, 'k_neighbors'):
         assert cloned_oversampler.k_neighbors == n_minority_samples - 1
@@ -118,7 +118,7 @@ def test_extract_intra_data():
     cluster_labels = np.array([0, 0, 0, 1, 1, 1, 2, 2, 2])
     intra_distribution = {(1, 1): 1.0, (1, 2): 0.8, (2, 2): 0.2}
     sampling_strategy = OrderedDict({1: 4, 2: 2})
-    clusters_data = extract_intra_data(
+    clusters_data = _extract_intra_data(
         X, y, cluster_labels, intra_distribution, sampling_strategy
     )
     cluster_sampling_strategies, Xs, ys = zip(*clusters_data)
@@ -141,7 +141,7 @@ def test_extract_inter_data():
     }
     sampling_strategy = OrderedDict({1: 3, 2: 3})
     random_state = check_random_state(RANDOM_STATE)
-    clusters_data = extract_inter_data(
+    clusters_data = _extract_inter_data(
         X, y, cluster_labels, inter_distribution, sampling_strategy, random_state
     )
     cluster_sampling_strategies, Xs, ys = zip(*clusters_data)
@@ -175,7 +175,7 @@ def test_generate_in_cluster(oversampler):
     # First class
     cluster_sampling_strategy = {1: 5}
     (class_label,) = cluster_sampling_strategy
-    X_new, y_new, _ = generate_in_cluster(
+    X_new, y_new = _generate_in_cluster(
         oversampler, cluster_sampling_strategy, X_in_cluster, y_in_cluster
     )
     assert len(X_new) == len(y_new) <= cluster_sampling_strategy[1]
@@ -185,28 +185,35 @@ def test_generate_in_cluster(oversampler):
     # Second class
     cluster_sampling_strategy = {2: 3}
     (class_label,) = cluster_sampling_strategy
-    X_new, y_new, _ = generate_in_cluster(
+    X_new, y_new = _generate_in_cluster(
         oversampler, cluster_sampling_strategy, X_in_cluster, y_in_cluster
     )
     assert len(X_new) == len(y_new) <= cluster_sampling_strategy[2]
     assert Counter(y_new)[class_label] <= cluster_sampling_strategy[2]
 
 
-@pytest.mark.parametrize('oversampler', OVERSAMPLERS)
+@pytest.mark.parametrize('oversampler', CLUSTER_OVERSAMPLERS)
 def test_fit(oversampler):
     """Test the fit method."""
     oversampler = clone(oversampler).fit(X, y)
     y_count = Counter(y)
+    assert hasattr(oversampler, 'sampling_strategy_')
+    assert hasattr(oversampler, 'oversampler_')
+    assert hasattr(oversampler, 'clusterer_')
+    assert hasattr(oversampler, 'distributor_')
+    assert hasattr(oversampler, 'random_state_')
     assert oversampler.sampling_strategy_ == OrderedDict(
         {0: y_count[1] - y_count[0], 2: y_count[1] - y_count[2]}
     )
 
 
-@pytest.mark.parametrize('oversampler', OVERSAMPLERS)
+@pytest.mark.parametrize('oversampler', CLUSTER_OVERSAMPLERS)
 def test_fit_resample(oversampler):
     """Test the fit and resample method."""
     oversampler = clone(oversampler)
     oversampler.fit_resample(X, y)
+    assert hasattr(oversampler, 'sampling_strategy_')
+    assert hasattr(oversampler, 'oversampler_')
     assert hasattr(oversampler, 'clusterer_')
     assert hasattr(oversampler, 'distributor_')
     assert hasattr(oversampler, 'random_state_')
@@ -220,14 +227,16 @@ def test_fit_resample(oversampler):
         (
             np.array([(0.0, 0.0), (1.0, 1.0), (2.0, 2.0), (3.0, 3.0), (4.0, 4.0)]),
             np.array([0, 0, 1, 1, 1]),
-            SMOTE(k_neighbors=5, random_state=RANDOM_STATE),
+            ClusterOverSampler(
+                oversampler=SMOTE(k_neighbors=5, random_state=RANDOM_STATE)
+            ),
         ),
         (
             np.array([(0.0, 0.0), (1.0, 1.0), (2.0, 2.0), (3.0, 3.0), (4.0, 4.0)]),
             np.array([0, 0, 1, 1, 1]),
-            SMOTE(
-                clusterer=KMeans(n_clusters=3, random_state=RANDOM_STATE),
-                k_neighbors=5,
+            ClusterOverSampler(
+                oversampler=SMOTE(k_neighbors=5, random_state=RANDOM_STATE),
+                clusterer=CLUSTERER.set_params(n_clusters=3),
                 random_state=RANDOM_STATE,
             ),
         ),
@@ -241,3 +250,30 @@ def test_fit_resample_intra_corner_cases(X, y, oversampler):
     assert y_count[0] == y_count[1]
     assert X.item(0, 0) <= X_res.item(-1, 0) <= X.item(1, 0)
     assert X.item(0, 1) <= X_res.item(-1, 1) <= X.item(1, 1)
+
+
+@pytest.mark.parametrize('oversampler', CLUSTER_OVERSAMPLERS)
+def test_raise_error(oversampler):
+    """Test the raise of an error when no samples
+    are generated."""
+    oversampler = clone(oversampler)
+    oversampler.set_params(
+        clusterer=CLUSTERER.set_params(n_clusters=2),
+        distributor=DensityDistributor(filtering_threshold=0.1),
+    )
+    with pytest.raises(ValueError):
+        oversampler.fit_resample(X, y)
+
+
+@pytest.mark.parametrize('oversampler', CLUSTER_OVERSAMPLERS)
+def test_display_warning(oversampler):
+    """Test the display of a warning when no samples
+    are generated."""
+    oversampler = clone(oversampler)
+    oversampler.set_params(
+        clusterer=CLUSTERER.set_params(n_clusters=2),
+        distributor=DensityDistributor(filtering_threshold=0.1),
+        raise_error=False,
+    )
+    with pytest.warns(FitFailedWarning):
+        oversampler.fit_resample(X, y)

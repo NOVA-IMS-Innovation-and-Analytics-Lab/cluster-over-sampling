@@ -7,7 +7,7 @@ import numpy as np
 
 from sklearn.base import clone
 
-from clover.distribution.density import DensityDistributor
+from clover.distribution._density import DensityDistributor
 
 X = np.array(
     [

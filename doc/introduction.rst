@@ -1,28 +1,25 @@
 .. _imbalanced-learn: https://imbalanced-learn.readthedocs.io/en/stable/
 
-.. _introduction:
-
 ============
 Introduction
 ============
 
-.. _api_clover:
-
 API
 ---
 
-Clustering-over-sampling follows the imbalanced-learn_ API using
-the base over-sampler functionality. More specifically:
+All the classes included in `cluster-over-sampling` follow the 
+imbalanced-learn_ API using the base over-sampler functionality. 
+More specifically:
 
-It implements a ``fit`` method to learn from data::
+They implement a ``fit`` method to learn from data::
 
       oversampler = object.fit(data, targets)
 
-it implements a ``fit_resample`` method to resample data sets::
+They implement a ``fit_resample`` method to resample data sets::
 
       data_resampled, targets_resampled = object.fit_resample(data, targets)
 
-Clustering-over-sampling accepts the following inputs:
+The following inputs are used:
 
 * ``data``: array-like (2-D list, pandas.DataFrame, numpy.array) or sparse
   matrices.

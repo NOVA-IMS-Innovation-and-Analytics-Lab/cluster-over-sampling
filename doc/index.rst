@@ -37,26 +37,27 @@ Welcome to cluster-over-sampling documentation!
 Getting Started
 ---------------
 
-Information to `install <install.html>`_, `test <test.html>`_, and `contribute <contribute.html>`_ to the package.
+Information to :ref:`install <install_guide>`, :ref:`test <test>` and 
+:ref:`contribute <contrib>` to the package.
 
 Documentation
 -------------
 
-The main documentation. This contains an in-depth description of
-clustering over-sampling procedure and how to apply it. It also contains the
-exact `API <api.html>`_ of all functions and classes, as given in
-the docstring.
+The main documentation. The :ref:`user guide <user_guide>` contains an in-depth
+description of clustering-based over-sampling as well as specific realizations
+of  it and how to apply it. It also contains the exact :ref:`API
+<api_description>` of all functions and classes, as given in the docstring.
 
 Examples
 --------
 
-A set of examples illustrating the use of clustering over-sampling procedure.
-It complements the `user guide <user_guide.html>`_.
+A set of :ref:`examples <general_examples>` illustrating the use of 
+the clustering-based over-sampling procedure and algorithms.
 
 Additional Information
 ----------------------
 
-`Release history <release_history.html>`_ and `about <about.html>`_ section of cluster-over-sampling.
+:ref:`Release history <release_section>` and :ref:`about <about_section>` section of cluster-over-sampling.
 
 See the `README <https://github.com/AlgoWit/cluster-over-sampling/blob/master/README.rst>`_
 for more information.

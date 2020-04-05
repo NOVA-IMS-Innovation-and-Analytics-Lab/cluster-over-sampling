@@ -1,11 +1,11 @@
 """
 ==============================
-Clustering based over-sampling
+Clustering-based over-sampling
 ==============================
 
 This example illustrates the data generation 
 process and the performance of various 
-over-samplers when clustering based over-sampling 
+over-samplers when clustering-based over-sampling 
 is used.
 
 """
@@ -22,9 +22,10 @@ from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score
+from imblearn.over_sampling import RandomOverSampler, SMOTE, BorderlineSMOTE
 from imblearn.pipeline import make_pipeline
 
-from clover.over_sampling import RandomOverSampler, SMOTE, BorderlineSMOTE
+from clover.over_sampling import ClusterOverSampler
 
 print(__doc__)
 
@@ -34,6 +35,7 @@ OVERSAMPLERS = [
     SMOTE(random_state=RANDOM_STATE + 1),
     BorderlineSMOTE(random_state=RANDOM_STATE + 2),
 ]
+KMEANS = KMeans(random_state=RANDOM_STATE, n_clusters=100)
 
 
 def generate_imbalanced_data():
@@ -53,18 +55,20 @@ def generate_imbalanced_data():
     return X, y
 
 
-def plot_data(X, y, over_sampler, ax):
+def plot_data(X, y, oversampler, ax):
     """Plot original or resampled data."""
-    if over_sampler is None:
+    if oversampler is None:
         X_res, y_res = X, y
         title = 'Original data'
     else:
-        X_res, y_res = over_sampler.fit_resample(X, y)
-        ovs_name = over_sampler.__class__.__name__
-        if over_sampler.clusterer is None:
+        oversampler = clone(oversampler)
+        X_res, y_res = oversampler.fit_resample(X, y)
+        if not isinstance(oversampler, ClusterOverSampler):
+            ovs_name = oversampler.__class__.__name__
             title = f'Resampling using {ovs_name}'
         else:
-            clusterer_name = over_sampler.clusterer.__class__.__name__
+            clusterer_name = oversampler.clusterer.__class__.__name__
+            ovs_name = oversampler.oversampler_.__class__.__name__
             title = f'Resampling using {clusterer_name}-{ovs_name}'
     ax.scatter(X_res[:, 0], X_res[:, 1], c=y_res, alpha=0.8, edgecolor='k')
     ax.spines['top'].set_visible(False)
@@ -76,16 +80,14 @@ def plot_data(X, y, over_sampler, ax):
     ax.set_title(title)
 
 
-def compare_f1_scores(X_train, X_test, y_train, y_test, clf, over_sampler, clusterer):
+def compare_f1_scores(X_train, X_test, y_train, y_test, clf, oversampler, clusterer):
     """Compare F1 scores of oversamplers with and 
     without clustering."""
-    ovs_clf = make_pipeline(clone(over_sampler), clf)
-    clr_ovs_clf = make_pipeline(
-        clone(over_sampler).set_params(clusterer=clusterer), clf
-    )
+    ovs_clf = make_pipeline(clone(oversampler), clf)
+    clr_ovs_clf = make_pipeline(ClusterOverSampler(clone(oversampler), clusterer), clf)
     y_pred = ovs_clf.fit(X_train, y_train).predict(X_test)
     y_pred_clr = clr_ovs_clf.fit(X_train, y_train).predict(X_test)
-    ovs_name = over_sampler.__class__.__name__
+    ovs_name = oversampler.__class__.__name__
     clr_name = clusterer.__class__.__name__
     ovs_score = f1_score(y_test, y_pred, average='macro')
     clr_ovs_score = f1_score(y_test, y_pred_clr, average='macro')
@@ -116,18 +118,17 @@ plot_data(X, y, None, ax)
 # Clustering based over-sampling allows to identify areas of the input space
 # which are appropriate to generate artificial data. Therefore, the generation
 # of noisy samples is avoided and the within-classes imbalanced issue is also
-# addressed. The next plots shows the resampled data when clustering is applied,
+# addressed. The next plots show the resampled data when clustering is applied,
 # comparing them to the resampled data of the initial over-samplers.
 
-kmeans = KMeans(random_state=RANDOM_STATE, n_clusters=100)
 fig, axs = plt.subplots(3, 2, figsize=(15, 15))
-for (ax1, ax2), over_sampler in zip(axs, OVERSAMPLERS):
-    plot_data(X, y, clone(over_sampler), ax1)
-    plot_data(X, y, clone(over_sampler).set_params(clusterer=kmeans), ax2)
+for (ax1, ax2), oversampler in zip(axs, OVERSAMPLERS):
+    plot_data(X, y, clone(oversampler), ax1)
+    plot_data(X, y, ClusterOverSampler(oversampler, KMEANS), ax2)
 fig.tight_layout()
 
 ###############################################################################
-# Performance ecaluation of clustering based over-sampling
+# Performance evaluation of clustering based over-sampling
 ###############################################################################
 
 ###############################################################################
@@ -137,8 +138,8 @@ fig.tight_layout()
 clf = GradientBoostingClassifier(random_state=RANDOM_STATE)
 data = train_test_split(X, y, random_state=RANDOM_STATE)
 scores = pd.DataFrame()
-for over_sampler in OVERSAMPLERS:
-    scores = scores.append(compare_f1_scores(*data, clf, over_sampler, kmeans))
+for oversampler in OVERSAMPLERS:
+    scores = scores.append(compare_f1_scores(*data, clf, oversampler, KMEANS))
 print(scores)
 
 ###############################################################################
@@ -146,6 +147,6 @@ print(scores)
 
 aff_prop = AgglomerativeClustering(n_clusters=100)
 scores = pd.DataFrame()
-for over_sampler in OVERSAMPLERS:
-    scores = scores.append(compare_f1_scores(*data, clf, over_sampler, aff_prop))
+for oversampler in OVERSAMPLERS:
+    scores = scores.append(compare_f1_scores(*data, clf, oversampler, aff_prop))
 print(scores)
