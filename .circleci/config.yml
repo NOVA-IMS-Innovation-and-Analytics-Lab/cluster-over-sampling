@@ -17,6 +17,7 @@ jobs:
             pip install cython
             conda install --yes pip numpy scipy scikit-learn matplotlib sphinx sphinx_rtd_theme numpydoc pillow pandas
             conda install --yes -c conda-forge imbalanced-learn
+            pip install geometric-smote som-learn
             pip install sphinx-gallery
             pip install .
             cd doc

@@ -1,11 +1,12 @@
-build:
-  image: latest
-formats:
-  - none
-requirements_file: requirements.txt
+version: 2
 python:
   version: 3.7
-  pip_install: true
-  extra_requirements:
-    - tests
-    - docs
+  install:
+    - method: pip
+      path: .
+      extra_requirements:
+        - docs
+conda:
+  environment: environment.yml
+
+  

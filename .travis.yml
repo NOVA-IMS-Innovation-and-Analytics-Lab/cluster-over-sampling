@@ -18,9 +18,9 @@ addons:
 matrix:
   include:
     - env: PYTHON_VERSION="3.6" NUMPY_VERSION="*" SCIPY_VERSION="*"
-           SKLEARN_VERSION="0.21.2" IMBLEARN_VERSION="0.6.0"
+           SKLEARN_VERSION="0.22" IMBLEARN_VERSION="0.6.2"
     - env: PYTHON_VERSION="3.7" NUMPY_VERSION="*" SCIPY_VERSION="*"
-           SKLEARN_VERSION="0.21.3" IMBLEARN_VERSION="0.6.1"
+           SKLEARN_VERSION="0.22.1" IMBLEARN_VERSION="0.6.2"
     - env: PYTHON_VERSION="3.8" NUMPY_VERSION="*" SCIPY_VERSION="*"
            SKLEARN_VERSION="nightly" IMBLEARN_VERSION="*"
 
@@ -38,13 +38,12 @@ install:
   - |
       if [ $SKLEARN_VERSION = "nightly" ]; then
           conda install --yes numpy==$NUMPY_VERSION scipy==$SCIPY_VERSION cython nose pytest pytest-cov
-          # install nightly wheels
           pip install --pre -f https://sklearn-nightly.scdn8.secure.raxcdn.com scikit-learn
-          conda install --yes -c conda-forge imbalanced-learn=$IMBLEARN_VERSION
       else
           conda install --yes numpy==$NUMPY_VERSION scipy==$SCIPY_VERSION scikit-learn==$SKLEARN_VERSION cython nose pytest pytest-cov
-          conda install --yes -c conda-forge imbalanced-learn=$IMBLEARN_VERSION
       fi
+  - conda install --yes -c conda-forge imbalanced-learn=$IMBLEARN_VERSION
+  - pip install som-learn geometric-smote
   - pip install codecov
   - pip install .
 

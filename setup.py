@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-"""Clustering based over-sampling."""
+"""Clustering-based over-sampling."""
 
 import codecs
 import os
@@ -20,7 +20,7 @@ URL = 'https://github.com/AlgoWit/cluster-over-sampling'
 LICENSE = 'MIT'
 DOWNLOAD_URL = 'https://github.com/AlgoWit/cluster-over-sampling'
 VERSION = __version__
-INSTALL_REQUIRES = ['scipy>=0.17', 'numpy>=1.1', 'scikit-learn>=0.21', 'imbalanced-learn>=0.6.0']
+INSTALL_REQUIRES = ['scipy>=0.17', 'numpy>=1.1', 'scikit-learn>=0.22', 'imbalanced-learn>=0.6.1']
 CLASSIFIERS = ['Intended Audience :: Science/Research',
                'Intended Audience :: Developers',
                'License :: OSI Approved',
@@ -32,11 +32,13 @@ CLASSIFIERS = ['Intended Audience :: Science/Research',
                'Operating System :: Unix',
                'Operating System :: MacOS',
                'Programming Language :: Python :: 3.6',
-               'Programming Language :: Python :: 3.7']
+               'Programming Language :: Python :: 3.7',
+               'Programming Language :: Python :: 3.8']
 EXTRAS_REQUIRE = {
     'tests': [
         'pytest',
-        'pytest-cov'],
+        'pytest-cov',
+    ],
     'docs': [
         'sphinx==1.8.5',
         'sphinx-gallery',
@@ -44,6 +46,10 @@ EXTRAS_REQUIRE = {
         'numpydoc',
         'matplotlib',
         'pandas'
+    ],
+    'optional': [
+        'som-learn>=0.1.1',
+        'geometric-smote>=0.1.3'
     ]
 }
 

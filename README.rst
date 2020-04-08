@@ -4,13 +4,10 @@
 
 .. _imbalanced-learn: http://imbalanced-learn.org/en/stable/
 
-|Travis|_ |AppVeyor|_ |Codecov|_ |CircleCI|_ |ReadTheDocs|_ |PythonVersion|_ |Pypi|_ |Conda|_ |DOI|_ |Black|_
+|Travis|_ |Codecov|_ |CircleCI|_ |ReadTheDocs|_ |PythonVersion|_ |Pypi|_ |Conda|_ |DOI|_ |Black|_
 
 .. |Travis| image:: https://travis-ci.org/AlgoWit/cluster-over-sampling.svg?branch=master
 .. _Travis: https://travis-ci.org/AlgoWit/cluster-over-sampling
-
-.. |AppVeyor| image:: https://ci.appveyor.com/api/projects/status/fnhxhlv16ovfhlyw/branch/master?svg=true
-.. _AppVeyor: https://ci.appveyor.com/project/georgedouzas/cluster-over-sampling/history
 
 .. |Codecov| image:: https://codecov.io/gh/AlgoWit/cluster-over-sampling/branch/master/graph/badge.svg
 .. _Codecov: https://codecov.io/gh/AlgoWit/cluster-over-sampling
@@ -60,7 +57,7 @@ are the following:
 
 - numpy(>=1.1)
 - scikit-learn(>=0.21)
-- imbalanced-learn(>=0.6.0)
+- imbalanced-learn(>=0.6.2)
 
 Optional dependencies for SOMO and Geometric SOMO are the following:
 
