@@ -6,6 +6,6 @@ dependencies:
   - numpy>=1.1
   - scipy>=0.17
   - scikit-learn>=0.22
-  - imbalanced-learn>0.6.1
+  - imbalanced-learn>=0.6.2
   - som-learn>=0.1.1
   - geometric-smote>=0.1.3

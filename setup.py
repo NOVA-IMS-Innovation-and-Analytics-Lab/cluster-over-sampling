@@ -20,7 +20,7 @@ URL = 'https://github.com/AlgoWit/cluster-over-sampling'
 LICENSE = 'MIT'
 DOWNLOAD_URL = 'https://github.com/AlgoWit/cluster-over-sampling'
 VERSION = __version__
-INSTALL_REQUIRES = ['scipy>=0.17', 'numpy>=1.1', 'scikit-learn>=0.22', 'imbalanced-learn>=0.6.1']
+INSTALL_REQUIRES = ['scipy>=0.17', 'numpy>=1.1', 'scikit-learn>=0.22', 'imbalanced-learn>=0.6.2']
 CLASSIFIERS = ['Intended Audience :: Science/Research',
                'Intended Audience :: Developers',
                'License :: OSI Approved',
