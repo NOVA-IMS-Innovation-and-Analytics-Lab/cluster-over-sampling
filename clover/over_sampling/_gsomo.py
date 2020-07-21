@@ -139,7 +139,7 @@ class GeometricSOMO(ClusterOverSampler):
     Examples
     --------
     >>> import numpy as np
-    >>> from clover.over_sampling import GeometricSOMO
+    >>> from clover.over_sampling import GeometricSOMO # doctest: +SKIP
     >>> from sklearn.datasets import make_blobs
     >>> blobs = [100, 800, 100]
     >>> X, y  = make_blobs(blobs, centers=[(-10, 0), (0,0), (10, 0)])
@@ -148,15 +148,18 @@ class GeometricSOMO(ClusterOverSampler):
     >>> y = np.append(y, 0)
     >>> # Make this a binary classification problem
     >>> y = y == 1
-    >>> somo = GeometricSOMO(random_state=42)
-    >>> X_res, y_res = somo.fit_resample(X, y)
+    >>> somo = GeometricSOMO(random_state=42) # doctest: +SKIP
+    >>> X_res, y_res = somo.fit_resample(X, y) # doctest: +SKIP
     >>> # Find the number of new samples in the middle blob
-    >>> n_res_in_middle = ((X_res[:, 0] > -5) & (X_res[:, 0] < 5)).sum()
-    >>> print("Samples in the middle blob: %s" % n_res_in_middle)
+    >>> right, left = X_res[:, 0] > -5, X_res[:, 0] < 5 # doctest: +SKIP
+    >>> n_res_in_middle = (right & left).sum() # doctest: +SKIP
+    >>> print("Samples in the middle blob: %s" % n_res_in_middle) # doctest: +SKIP
     Samples in the middle blob: 801
-    >>> print("Middle blob unchanged: %s" % (n_res_in_middle == blobs[1] + 1))
+    >>> unchanged = n_res_in_middle == blobs[1] + 1 # doctest: +SKIP
+    >>> print("Middle blob unchanged: %s" % unchanged) # doctest: +SKIP
     Middle blob unchanged: True
-    >>> print("More 0 samples: %s" % ((y_res == 0).sum() > (y == 0).sum()))
+    >>> more_zero_samples = (y_res == 0).sum() > (y == 0).sum() # doctest: +SKIP
+    >>> print("More 0 samples: %s" % more_zero_samples) # doctest: +SKIP
     More 0 samples: True
     """
 
@@ -223,13 +226,15 @@ class GeometricSOMO(ClusterOverSampler):
         if self.som_estimator is None:
             self.clusterer_ = SOM(random_state=self.random_state_)
         elif isinstance(self.som_estimator, int):
-            check_scalar(self.som_estimator, 'som_estimator', int, 1)
+            check_scalar(self.som_estimator, 'som_estimator', int, min_val=1)
             n = round(sqrt(self.som_estimator))
             self.clusterer_ = SOM(
                 n_columns=n, n_rows=n, random_state=self.random_state_
             )
         elif isinstance(self.som_estimator, float):
-            check_scalar(self.som_estimator, 'som_estimator', float, 0.0, 1.0)
+            check_scalar(
+                self.som_estimator, 'som_estimator', float, min_val=0.0, max_val=1.0
+            )
             n = round(sqrt((X.shape[0] - 1) * self.som_estimator + 1))
             self.clusterer_ = SOM(
                 n_columns=n, n_rows=n, random_state=self.random_state_

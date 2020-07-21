@@ -86,7 +86,7 @@ selected::
    >>> from imblearn.over_sampling import RandomOverSampler
    >>> from sklearn.cluster import AffinityPropagation
    >>> from clover.over_sampling import ClusterOverSampler
-   >>> clovrs = ClusterOverSampler(oversampler=RandomOverSampler(random_state=13), clusterer=AffinityPropagation(), distributor=DensityDistributor(), random_state=4)
+   >>> clovrs = ClusterOverSampler(oversampler=RandomOverSampler(random_state=13), clusterer=AffinityPropagation(random_state=0), distributor=DensityDistributor(), random_state=4)
    >>> X_resampled, y_resampled = clovrs.fit_resample(X, y)
    >>> print(sorted(Counter(y_resampled).items()))
    [(0, 80), (1, 80), (2, 80)]

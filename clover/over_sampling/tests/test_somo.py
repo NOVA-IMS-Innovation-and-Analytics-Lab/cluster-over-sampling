@@ -10,10 +10,11 @@ from sklearn.base import clone
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.datasets import make_classification
 from imblearn.over_sampling import SMOTE
-from somlearn import SOM
 
 from clover.over_sampling._somo import SOMO
 from clover.distribution._density import DensityDistributor
+
+SOM = pytest.importorskip('somlearn.SOM')
 
 RANDOM_STATE = 2
 X, y = make_classification(

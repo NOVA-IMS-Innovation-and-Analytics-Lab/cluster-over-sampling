@@ -180,12 +180,18 @@ class KMeansSMOTE(ClusterOverSampler):
         if self.kmeans_estimator is None:
             self.clusterer_ = MiniBatchKMeans(random_state=self.random_state_)
         elif isinstance(self.kmeans_estimator, int):
-            check_scalar(self.kmeans_estimator, 'k_means_estimator', int, 1)
+            check_scalar(self.kmeans_estimator, 'k_means_estimator', int, min_val=1)
             self.clusterer_ = MiniBatchKMeans(
                 n_clusters=self.kmeans_estimator, random_state=self.random_state_
             )
         elif isinstance(self.kmeans_estimator, float):
-            check_scalar(self.kmeans_estimator, 'k_means_estimator', float, 0.0, 1.0)
+            check_scalar(
+                self.kmeans_estimator,
+                'k_means_estimator',
+                float,
+                min_val=0.0,
+                max_val=1.0,
+            )
             n_clusters = round((X.shape[0] - 1) * self.kmeans_estimator + 1)
             self.clusterer_ = MiniBatchKMeans(
                 n_clusters=n_clusters, random_state=self.random_state

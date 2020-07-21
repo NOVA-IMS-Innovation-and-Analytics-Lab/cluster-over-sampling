@@ -58,9 +58,9 @@ CLUSTER_OVERSAMPLERS = [
 
 def test_modify_nn_object():
     """Test the modification of nn object."""
-    assert _modify_nn(NearestNeighbors(5), 3).n_neighbors == 2
-    assert _modify_nn(NearestNeighbors(3), 3).n_neighbors == 2
-    assert _modify_nn(NearestNeighbors(2), 5).n_neighbors == 2
+    assert _modify_nn(NearestNeighbors(n_neighbors=5), 3).n_neighbors == 2
+    assert _modify_nn(NearestNeighbors(n_neighbors=3), 3).n_neighbors == 2
+    assert _modify_nn(NearestNeighbors(n_neighbors=2), 5).n_neighbors == 2
 
 
 def test_modify_nn_int():

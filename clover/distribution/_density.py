@@ -154,7 +154,7 @@ class DensityDistributor(BaseDistributor):
             self.filtering_threshold_ = max(counts_vals) / min(counts_vals)
         else:
             check_scalar(
-                self.filtering_threshold, 'filtering_threshold', (int, float), 0
+                self.filtering_threshold, 'filtering_threshold', (int, float), min_val=0
             )
             self.filtering_threshold_ = self.filtering_threshold
 
@@ -162,7 +162,9 @@ class DensityDistributor(BaseDistributor):
         if self.distances_exponent == 'auto':
             self.distances_exponent_ = X.shape[1]
         else:
-            check_scalar(self.distances_exponent, 'distances_exponent', (int, float), 0)
+            check_scalar(
+                self.distances_exponent, 'distances_exponent', (int, float), min_val=0
+            )
             self.distances_exponent_ = self.distances_exponent
 
         # Sparsity based
@@ -170,7 +172,13 @@ class DensityDistributor(BaseDistributor):
         self.sparsity_based_ = self.sparsity_based
 
         # distribution ratio
-        check_scalar(self.distribution_ratio, 'distribution_ratio', float, 0.0, 1.0)
+        check_scalar(
+            self.distribution_ratio,
+            'distribution_ratio',
+            float,
+            min_val=0.0,
+            max_val=1.0,
+        )
         if self.distribution_ratio < 1.0 and neighbors is None:
             raise ValueError(
                 'Parameter `distribution_ratio` should be equal to 1.0, '

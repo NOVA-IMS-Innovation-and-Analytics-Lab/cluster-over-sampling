@@ -9,11 +9,12 @@ import pytest
 from sklearn.base import clone
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.datasets import make_classification
-from gsmote import GeometricSMOTE
-from somlearn import SOM
 
 from clover.over_sampling._gsomo import GeometricSOMO
 from clover.distribution._density import DensityDistributor
+
+GeometricSMOTE = pytest.importorskip('gsmote.GeometricSMOTE')
+SOM = pytest.importorskip('somlearn.SOM')
 
 RANDOM_STATE = 11
 X, y = make_classification(

@@ -283,7 +283,11 @@ class ClusterOverSampler(BaseOverSampler):
         X, y, _ = self._check_X_y(X, y)
         self._initialize_fitting(X)
         self.sampling_strategy_ = check_sampling_strategy(
-            self.oversampler_.sampling_strategy, y, self._sampling_type
+            self.oversampler_.sampling_strategy
+            if isinstance(self.oversampler_, BaseOverSampler)
+            else self.oversampler_.steps[-1][-1].sampling_strategy,
+            y,
+            self._sampling_type,
         )
         return self
 
@@ -312,12 +316,20 @@ class ClusterOverSampler(BaseOverSampler):
 
         self._initialize_fitting(X)._fit(X, y, **fit_params)
         self.sampling_strategy_ = check_sampling_strategy(
-            self.oversampler_.sampling_strategy, y, self._sampling_type
+            self.oversampler_.sampling_strategy
+            if isinstance(self.oversampler_, BaseOverSampler)
+            else self.oversampler_.steps[-1][-1].sampling_strategy,
+            y,
+            self._sampling_type,
         )
 
         output = self._fit_resample(X, y)
 
-        y_ = label_binarize(output[1], np.unique(y)) if binarize_y else output[1]
+        y_ = (
+            label_binarize(y=output[1], classes=np.unique(y))
+            if binarize_y
+            else output[1]
+        )
 
         X_, y_ = arrays_transformer.transform(output[0], y_)
         return (X_, y_) if len(output) == 2 else (X_, y_, output[2])
@@ -375,7 +387,7 @@ class ClusterOverSampler(BaseOverSampler):
         if self.clusterer is None and self.distributor is not None:
             raise ValueError(
                 'Distributor was found but clusterer is set to `None`. '
-                'Set parameter `distributor` to `None` or use a clusterer.'
+                'Either set parameter `distributor` to `None` or use a clusterer.'
             )
         elif self.clusterer is None and self.distributor is None:
             self.clusterer_ = None
