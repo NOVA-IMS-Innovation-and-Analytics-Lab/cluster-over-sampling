@@ -18,7 +18,8 @@ from sklearn.utils.multiclass import check_classification_targets
 from sklearn.exceptions import FitFailedWarning
 from imblearn.over_sampling.base import BaseOverSampler
 from imblearn.over_sampling import RandomOverSampler
-from imblearn.utils import check_sampling_strategy, Substitution
+from imblearn.pipeline import Pipeline
+from imblearn.utils import Substitution, check_sampling_strategy
 from imblearn.utils._docstring import _random_state_docstring, _n_jobs_docstring
 from imblearn.utils._validation import ArraysTransformer
 from joblib import Parallel, delayed
@@ -142,6 +143,11 @@ def _generate_in_cluster(
     oversampler, cluster_sampling_strategy, X_in_cluster, y_in_cluster
 ):
     """Generate intra-cluster or inter-cluster new samples."""
+
+    # Pipeline case
+    if isinstance(oversampler, Pipeline):
+        transformer, oversampler = oversampler.steps[:-1], oversampler.steps[-1][-1]
+        X_in_cluster = Pipeline(transformer).fit_transform(X_in_cluster, y_in_cluster)
 
     # Create oversampler for specific cluster and class
     oversampler = _clone_modify(oversampler, *cluster_sampling_strategy, y_in_cluster)
@@ -281,14 +287,7 @@ class ClusterOverSampler(BaseOverSampler):
             Return the instance itself.
         """
         X, y, _ = self._check_X_y(X, y)
-        self._initialize_fitting(X)
-        self.sampling_strategy_ = check_sampling_strategy(
-            self.oversampler_.sampling_strategy
-            if isinstance(self.oversampler_, BaseOverSampler)
-            else self.oversampler_.steps[-1][-1].sampling_strategy,
-            y,
-            self._sampling_type,
-        )
+        self._initialize_fitting(X, y)
         return self
 
     def fit_resample(self, X, y, **fit_params):
@@ -314,14 +313,7 @@ class ClusterOverSampler(BaseOverSampler):
         arrays_transformer = ArraysTransformer(X, y)
         X, y, binarize_y = self._check_X_y(X, y)
 
-        self._initialize_fitting(X)._fit(X, y, **fit_params)
-        self.sampling_strategy_ = check_sampling_strategy(
-            self.oversampler_.sampling_strategy
-            if isinstance(self.oversampler_, BaseOverSampler)
-            else self.oversampler_.steps[-1][-1].sampling_strategy,
-            y,
-            self._sampling_type,
-        )
+        self._initialize_fitting(X, y)._fit(X, y, **fit_params)
 
         output = self._fit_resample(X, y)
 
@@ -374,7 +366,7 @@ class ClusterOverSampler(BaseOverSampler):
         )
         return self._cluster_sample(clusters_data, X, y)
 
-    def _initialize_fitting(self, X):
+    def _initialize_fitting(self, X, y):
         """Initialize fitting process."""
 
         # Check random state
@@ -382,6 +374,13 @@ class ClusterOverSampler(BaseOverSampler):
 
         # Check oversampler
         self.oversampler_ = clone(self.oversampler)
+        self.sampling_strategy_ = check_sampling_strategy(
+            self.oversampler_.sampling_strategy
+            if isinstance(self.oversampler_, BaseOverSampler)
+            else self.oversampler_.steps[-1][-1].sampling_strategy,
+            y,
+            self._sampling_type,
+        )
 
         # Check clusterer and distributor
         if self.clusterer is None and self.distributor is not None:

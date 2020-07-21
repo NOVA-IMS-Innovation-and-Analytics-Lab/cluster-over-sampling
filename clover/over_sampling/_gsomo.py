@@ -11,7 +11,7 @@ from sklearn.base import clone
 from sklearn.utils import check_random_state
 from sklearn.utils import check_scalar
 from imblearn.over_sampling.base import BaseOverSampler
-from imblearn.utils import Substitution
+from imblearn.utils import Substitution, check_sampling_strategy
 from imblearn.utils._docstring import _random_state_docstring, _n_jobs_docstring
 
 from ._cluster import ClusterOverSampler
@@ -191,7 +191,7 @@ class GeometricSOMO(ClusterOverSampler):
         self.raise_error = raise_error
         self.n_jobs = n_jobs
 
-    def _initialize_fitting(self, X):
+    def _initialize_fitting(self, X, y):
         """Initialize fitting process."""
 
         # Import SOM and GeometricSMOTE
@@ -221,6 +221,9 @@ class GeometricSOMO(ClusterOverSampler):
             selection_strategy=self.selection_strategy,
             random_state=self.random_state_,
             n_jobs=self.n_jobs,
+        )
+        self.sampling_strategy_ = check_sampling_strategy(
+            self.oversampler_.sampling_strategy, y, self._sampling_type,
         )
 
         if self.som_estimator is None:
