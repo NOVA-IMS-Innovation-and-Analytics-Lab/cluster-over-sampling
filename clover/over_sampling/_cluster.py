@@ -140,21 +140,21 @@ def _extract_inter_data(
 
 
 def _generate_in_cluster(
-    oversampler, cluster_sampling_strategy, X_in_cluster, y_in_cluster
+    oversampler, transformer, cluster_sampling_strategy, X_in_cluster, y_in_cluster
 ):
     """Generate intra-cluster or inter-cluster new samples."""
-
-    # Pipeline case
-    if isinstance(oversampler, Pipeline):
-        transformer, oversampler = oversampler.steps[:-1], oversampler.steps[-1][-1]
-        X_in_cluster = Pipeline(transformer).fit_transform(X_in_cluster, y_in_cluster)
 
     # Create oversampler for specific cluster and class
     oversampler = _clone_modify(oversampler, *cluster_sampling_strategy, y_in_cluster)
     oversampler.sampling_strategy_ = cluster_sampling_strategy
 
     # Resample cluster and class data
-    X_res, y_res = oversampler._fit_resample(X_in_cluster, y_in_cluster)
+    X_res, y_res = oversampler._fit_resample(
+        transformer.transform(X_in_cluster)
+        if transformer is not None
+        else X_in_cluster,
+        y_in_cluster,
+    )
 
     # Filter only new data
     X_new, y_new = X_res[len(X_in_cluster):], y_res[len(y_in_cluster):]
@@ -287,7 +287,7 @@ class ClusterOverSampler(BaseOverSampler):
             Return the instance itself.
         """
         X, y, _ = self._check_X_y(X, y)
-        self._initialize_fitting(X, y)
+        self._check(X, y)
         return self
 
     def fit_resample(self, X, y, **fit_params):
@@ -313,7 +313,7 @@ class ClusterOverSampler(BaseOverSampler):
         arrays_transformer = ArraysTransformer(X, y)
         X, y, binarize_y = self._check_X_y(X, y)
 
-        self._initialize_fitting(X, y)._fit(X, y, **fit_params)
+        self._check(X, y)._fit(X, y, **fit_params)
 
         output = self._fit_resample(X, y)
 
@@ -330,18 +330,13 @@ class ClusterOverSampler(BaseOverSampler):
         """Generate artificial data inside clusters or between clusters.
         """
         generated_data = Parallel(n_jobs=self.n_jobs)(
-            delayed(_generate_in_cluster)(self.oversampler_, *data)
+            delayed(_generate_in_cluster)(self.oversampler_, self.transformer_, *data)
             for data in clusters_data
         )
-        if not generated_data:
-            X_new, y_new = (
-                np.empty(shape=(0, X.shape[1]), dtype=X.dtype),
-                np.empty(shape=(0,), dtype=y.dtype),
-            )
+        if generated_data:
+            return [np.concatenate(data) for data in zip(*generated_data)]
         else:
-            X_new, y_new = [np.concatenate(data) for data in zip(*generated_data)]
-
-        return X_new, y_new
+            return None, None
 
     def _intra_sample(self, X, y):
         """Intracluster resampling."""
@@ -366,21 +361,16 @@ class ClusterOverSampler(BaseOverSampler):
         )
         return self._cluster_sample(clusters_data, X, y)
 
-    def _initialize_fitting(self, X, y):
-        """Initialize fitting process."""
+    def _check_estimators(self, X, y):
+        """Check various estimators."""
 
-        # Check random state
-        self.random_state_ = check_random_state(self.random_state)
-
-        # Check oversampler
-        self.oversampler_ = clone(self.oversampler)
-        self.sampling_strategy_ = check_sampling_strategy(
-            self.oversampler_.sampling_strategy
-            if isinstance(self.oversampler_, BaseOverSampler)
-            else self.oversampler_.steps[-1][-1].sampling_strategy,
-            y,
-            self._sampling_type,
-        )
+        # Check transformer and oversampler
+        if isinstance(self.oversampler, Pipeline):
+            if self.oversampler.steps[:-1]:
+                self.transformer_ = Pipeline(self.oversampler.steps[:-1]).fit(X)
+            self.oversampler_ = clone(self.oversampler.steps[-1][-1])
+        else:
+            self.oversampler_ = clone(self.oversampler)
 
         # Check clusterer and distributor
         if self.clusterer is None and self.distributor is not None:
@@ -398,6 +388,26 @@ class ClusterOverSampler(BaseOverSampler):
                 if self.distributor is None
                 else clone(self.distributor)
             )
+        return self
+
+    def _check_sampling_strategy(self, y):
+        """Check sampling strategy."""
+        self.sampling_strategy_ = check_sampling_strategy(
+            self.oversampler_.sampling_strategy, y, self._sampling_type,
+        )
+        return self
+
+    def _check(self, X, y):
+        """Apply various checks."""
+
+        # Check random state
+        self.random_state_ = check_random_state(self.random_state)
+
+        # Check transformer
+        self.transformer_ = None
+
+        # Check estimators and sampling strategy
+        self._check_estimators(X, y)._check_sampling_strategy(y)
 
         return self
 
@@ -470,9 +480,15 @@ class ClusterOverSampler(BaseOverSampler):
             ) + inter_count.get(class_label, 0)
 
         # Stack resampled data
+        X_resampled = [
+            self.transformer_.transform(X) if self.transformer_ is not None else X,
+            X_intra_new,
+            X_inter_new,
+        ]
+        y_resampled = [y, y_intra_new, y_inter_new]
         X_resampled, y_resampled = (
-            np.vstack((X, X_intra_new, X_inter_new)),
-            np.hstack((y, y_intra_new, y_inter_new)),
+            np.vstack([X for X in X_resampled if X is not None]),
+            np.hstack([y for y in y_resampled if y is not None]),
         )
 
         return X_resampled, y_resampled

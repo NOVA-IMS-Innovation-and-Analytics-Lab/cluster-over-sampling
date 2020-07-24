@@ -176,7 +176,7 @@ def test_generate_in_cluster(oversampler):
     cluster_sampling_strategy = {1: 5}
     (class_label,) = cluster_sampling_strategy
     X_new, y_new = _generate_in_cluster(
-        oversampler, cluster_sampling_strategy, X_in_cluster, y_in_cluster
+        oversampler, None, cluster_sampling_strategy, X_in_cluster, y_in_cluster
     )
     assert len(X_new) == len(y_new) <= cluster_sampling_strategy[1]
     np.testing.assert_array_equal(np.unique(X_new), np.array([5.0]))
@@ -186,7 +186,7 @@ def test_generate_in_cluster(oversampler):
     cluster_sampling_strategy = {2: 3}
     (class_label,) = cluster_sampling_strategy
     X_new, y_new = _generate_in_cluster(
-        oversampler, cluster_sampling_strategy, X_in_cluster, y_in_cluster
+        oversampler, None, cluster_sampling_strategy, X_in_cluster, y_in_cluster
     )
     assert len(X_new) == len(y_new) <= cluster_sampling_strategy[2]
     assert Counter(y_new)[class_label] <= cluster_sampling_strategy[2]
