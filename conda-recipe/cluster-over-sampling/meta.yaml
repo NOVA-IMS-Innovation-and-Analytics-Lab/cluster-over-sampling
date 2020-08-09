@@ -1,10 +1,10 @@
 package:
   name: cluster-over-sampling
-  version: "0.2.5"
+  version: "0.2.6"
 
 source:
-  url: "https://files.pythonhosted.org/packages/a4/04/17cb63045347766dc30c684171b876f2596ee83188b822b6292cd9ca94af/cluster-over-sampling-0.2.5.tar.gz"
-  sha256: "3d856aeb7c3e0eeff8269ccccb110d9e80667d781ad38211c789b76884e1300c"
+  url: "https://files.pythonhosted.org/packages/f0/09/e652d85df08b32b261f6460729040b550db67c721b054b6e0d3e76e95827/cluster-over-sampling-0.2.6.tar.gz"
+  sha256: "446975e4ad707a42f88e98212f9c2653027b6513390240cbe660d8e36323f850"
 
 build:
   number: 0

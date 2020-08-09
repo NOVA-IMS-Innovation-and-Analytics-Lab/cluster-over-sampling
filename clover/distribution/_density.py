@@ -5,6 +5,7 @@ Implementation of the DensityDistributor class.
 # Author: Georgios Douzas <gdouzas@icloud.com>
 # License: MIT
 
+from warnings import catch_warnings, filterwarnings
 from collections import Counter
 from itertools import product
 
@@ -128,7 +129,7 @@ class DensityDistributor(BaseDistributor):
     >>> density_distributor.filtered_clusters_
     [(7, 1), (4, 1), (3, 1), (1, 1), (6, 2), (1, 2), (2, 2), (4, 2)]
     >>> density_distributor.intra_distribution_
-    {(7, 1): 0.066096796165... (4, 2): 0.0911085147...}
+    {(7, 1): 0.0660967961... (4, 2): 0.0673207347...}
     >>> density_distributor.inter_distribution_
     {}
     """
@@ -218,44 +219,47 @@ class DensityDistributor(BaseDistributor):
         self.clusters_density_ = dict()
 
         # Calculate density
+        finite_densities = []
         for cluster_label, class_label in self.filtered_clusters_:
 
             # Calculate number of majority and minority samples in each cluster
             mask = (self.labels_ == cluster_label) & (y == class_label)
             n_minority_samples = mask.sum()
 
-            # Identify filtered clusters
+            # Calculate density
             n_minority_pairs = (
                 (n_minority_samples - 1) * n_minority_samples
                 if n_minority_samples > 1
                 else 1
             )
             mean_distances = euclidean_distances(X[mask]).sum() / n_minority_pairs
-            self.clusters_density_[(cluster_label, class_label)] = (
-                n_minority_samples / (mean_distances ** self.distances_exponent_)
-                if mean_distances > 0
-                else np.inf
-            )
+            with catch_warnings():
+                filterwarnings('ignore')
+                density = n_minority_samples / (
+                    mean_distances ** self.distances_exponent_
+                )
+                if np.isfinite(density):
+                    finite_densities.append(density)
+                self.clusters_density_[(cluster_label, class_label)] = density
 
-        # Convert infinite densities to finite
-        class_labels = set(
-            [class_label for _, class_label in self.clusters_density_.keys()]
-        )
-        max_densities = {}
-        for class_label in class_labels:
-            densities = [
-                density
-                for label, density in self.clusters_density_.items()
-                if label[1] == class_label
+        # Convert zero and infinite densities
+        if 0.0 in self.clusters_density_.values():
+            self.clusters_density_ = {
+                multi_label: 1.0
+                for multi_label, density in self.clusters_density_.items()
+                if density == 0.0
+            }
+            self.filtered_clusters_ = [
+                multi_label
+                for multi_label in self.filtered_clusters_
+                if multi_label in self.clusters_density_
             ]
-            finite_densities = set(densities).difference([np.inf])
-            max_densities[class_label] = (
-                max(finite_densities) if len(finite_densities) > 0 else 1.0
-            )
-        self.clusters_density_ = {
-            label: float(max_densities[label[1]] if np.isinf(density) else density)
-            for label, density in self.clusters_density_.items()
-        }
+        else:
+            max_density = max(finite_densities) if finite_densities else 1.0
+            self.clusters_density_ = {
+                multi_label: (max_density if np.isinf(density) else density)
+                for multi_label, density in self.clusters_density_.items()
+            }
 
     def _intra_distribute(self, X, y, labels, neighbors):
         """Distribute the generated samples in each cluster based on their density."""
