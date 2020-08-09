@@ -1,0 +1,78 @@
+site_name: "cluster-over-sampling"
+site_description: "Implementation of a general interface for clustering based over-sampling algorithms."
+site_url: "https://georgedouzas.github.io/cluster-over-sampling"
+repo_url: "https://github.com/georgedouzas/cluster-over-sampling"
+repo_name: "georgedouzas/cluster-over-sampling"
+site_dir: "site"
+watch: [README.md, CONTRIBUTING.md, CHANGELOG.md, src/clover]
+
+theme:
+  name: material
+  features:
+  - content.code.annotate
+  - navigation.tabs
+  - navigation.tabs.sticky
+  - navigation.top
+  palette:
+    primary: blue
+
+nav:
+- Overview:
+  - User guide: overview/user_guide.md
+  - Changelog: overview/changelog.md
+  - License: overview/license.md
+- API: reference/
+- Examples: generated/gallery
+- Development:
+  - Contributing: development/contributing.md
+  - Code of Conduct: development/code_of_conduct.md
+  - Coverage report: development/coverage.md
+
+extra_css:
+- css/material.css
+- css/mkdocstrings.css
+
+markdown_extensions:
+- admonition
+- callouts
+- pymdownx.details
+- pymdownx.emoji
+- pymdownx.magiclink
+- pymdownx.snippets:
+    check_paths: true
+- pymdownx.superfences
+- pymdownx.tabbed:
+    alternate_style: true
+- pymdownx.tasklist
+- toc:
+    permalink: "¤"
+
+plugins:
+- search
+- autorefs
+- gallery:
+    examples_dirs:
+      - docs/examples
+    gallery_dirs:
+      - docs/generated/gallery
+- markdown-exec
+- gen-files:
+    scripts:
+    - docs/gen_api_nav.py
+- literate-nav:
+    nav_file: SUMMARY.md
+- coverage
+- section-index
+- mkdocstrings:
+    handlers:
+      python:
+          docstring_style: google
+          docstring_options:
+            ignore_init_summary: no
+          merge_init_into_class: yes
+          show_submodules: no
+                
+extra:
+  social:
+  - icon: fontawesome/brands/github
+    link: https://github.com/georgedouzas

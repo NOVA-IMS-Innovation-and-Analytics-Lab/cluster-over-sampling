@@ -1,0 +1,219 @@
+[build-system]
+requires = ["pdm-pep517"]
+build-backend = "pdm.pep517.api"
+
+[project]
+name = "cluster-over-sampling"
+description = "Implementation of a general interface for clustering based over-sampling algorithms."
+authors = [{name = "Georgios Douzas", email = "gdouzas@icloud.com"}]
+license = "MIT"
+readme = "README.md"
+requires-python = ">=3.10,<3.12"
+keywords = ["machine learning", "imbalanced learning", "oversampling"]
+dynamic = ["version"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Documentation",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: Documentation",
+    "Topic :: Utilities",
+    "Typing :: Typed",
+]
+dependencies = [
+    "scipy>=1.7.2",
+    "numpy>=1.22",
+    "scikit-learn>=1.1.1",
+    "imbalanced-learn>=0.9.0",
+]
+
+[project.optional-dependencies]
+som = ["som-learn>=0.1.1"]
+gsmote = ["geometric-smote>=0.2.0"]
+all = ["som-learn>=0.1.1", "geometric-smote>=0.2.0"]
+
+[project.urls]
+Homepage = "https://cluster-over-sampling.vercel.app/"
+Documentation = "https://cluster-over-sampling.vercel.app/"
+Changelog = "https://cluster-over-sampling.vercel.app/overview/changelog/"
+Repository = "https://github.com/georgedouzas/cluster-over-sampling"
+Issues = "https://github.com/georgedouzas/cluster-over-sampling/issues"
+Discussions = "https://github.com/georgedouzas/cluster-over-sampling/discussions"
+Gitter = "https://gitter.im/cluster-over-sampling/community"
+Funding = "https://github.com/sponsors/georgedouzas"
+
+[tool.pdm]
+version = {source = "scm"}
+build = {package-dir = "src", editable-backend = "editables"}
+
+[tool.pdm.scripts]
+clean = {shell = """rm -rf .mypy_cache .pytest_cache tests/.pytest_cache build dist \
+htmlcov pip-wheel-metadata site __pycache__ \
+&& find . -type d -name __pycache__ | xargs rm -rf \
+&& find . -name '*.rej'  -delete \
+&& find . -name '.coverage*'  -delete"""}
+docs = "nox --error-on-external-run -R -s docs -- {args:serve}"
+formatting = "nox --error-on-external-run -R -s formatting -- {args:all}"
+checks = "nox --error-on-external-run -R -s checks -- {args:all}"
+tests = "nox --error-on-external-run -R -s tests"
+changelog = "nox --error-on-external-run -R -s changelog -- {args:all}"
+release = "nox --error-on-external-run -R -s release"
+
+[tool.pdm.dev-dependencies]
+maintenance = [
+    "nox>=2022.8.7",
+]
+docs = [
+    "mkdocs>=1.3",
+    "mkdocs-coverage>=0.2",
+    "mkdocs-gen-files>=0.3",
+    "mkdocs-literate-nav>=0.4",
+    "mkdocs-material>=7.3",
+    "mkdocs-gallery>=0.7.6",
+    "mkdocs-section-index>=0.3",
+    "mkdocstrings[python]>=0.20",
+    "markdown-callouts>=0.2",
+    "markdown-exec>=0.5",
+    "toml>=0.10",
+    'pandas>=1.5.0',
+    "Pillow>=9.4.0",
+]
+formatting = [
+    "black>=21.10b0",
+    "docformatter>=1.5.1",
+]
+checks = [
+    "ruff>=0.0.237",
+    "safety>=2",
+    "mypy>=0.910",
+    "types-markdown>=3.3",
+    "types-toml>=0.10",
+    "nptyping>=2.4.1"
+]
+tests = [
+    "pytest>=6.2",
+    "pytest-cov>=3.0",
+    "pytest-randomly>=3.10",
+    "pytest-xdist>=2.4",
+    "nptyping>=2.4.1"
+]
+chagelog = [
+    "towncrier>=19.2",
+    "click>=8.1.3",
+]
+release = [
+    "twine>=4.0.0",
+    "click>=8.1.3",
+]
+
+[tool.black]
+line-length = 120
+extend-exclude = "(tests/fixtures|docs/generated)"
+skip-string-normalization = true
+
+[tool.ruff]
+select = ["C", "E", "F", "W", "B", "I", "D", "N", "UP", "YTT", "ANN", "S",
+"BLE", "A", "COM", "C4", "DTZ", "T10", "EM", "EXE", "ISC", "ICN", "G",
+"INP", "PIE", "T20", "PT", "Q", "RET501", "RET502", "RET503", "SIM",
+"PTH", "PD", "PGH", "PL", "TRY", "RUF", "PLE", "PLR", "PLW", "TRY", "RUF"]
+ignore = ["D202", "N806", "N803", "S101", "INP001", "Q000", "TRY002", "PLR0913", "EXE001", "EXE002"]
+fix = true
+fixable = ["C", "E", "F", "W", "B", "I", "D", "N", "UP", "YTT", "ANN", "S",
+"BLE", "A", "COM", "C4", "DTZ", "T10", "EM", "EXE", "ISC", "ICN", "G",
+"INP", "PIE", "T20", "PT", "Q", "RET501", "RET502", "RET503", "SIM",
+"PTH", "PD", "PGH", "PL", "TRY", "RUF", "PLE", "PLR", "PLW", "TRY", "RUF"]
+extend-exclude = ["docs/generated"]
+force-exclude = true
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.per-file-ignores]
+"docs/examples/*" = ["ANN", "D"]
+"docs/generated/*" = ["ANN", "D"]
+"test_*" = ["ANN"]
+
+[tool.ruff.pydocstyle]
+convention = "google"
+
+[tool.mypy]
+ignore_missing_imports = true
+exclude = ["tests/fixtures/", "docs/examples/", "docs/generated/"]
+warn_unused_ignores = true
+show_error_codes = true
+
+[tool.pytest.ini_options]
+python_files = ["test_*.py"]
+addopts = "--cov"
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+parallel = true
+source = ["src", "tests"]
+
+[tool.coverage.paths]
+equivalent = ["src", "__pypackages__"]
+
+[tool.coverage.report]
+precision = 2
+omit = ["src/*/__init__.py", "src/*/__main__.py", "tests/__init__.py"]
+
+[tool.coverage.json]
+output = "htmlcov/coverage.json"
+
+[tool.towncrier]
+package_dir = "src"
+package = "clover"
+directory = "news"
+filename = "CHANGELOG.md"
+template = "news/changelog_template.jinja"
+issue_format = "([Issue #{issue}](https://github.com/georgedouzas/cluster-over-sampling/issues/{issue}))"
+start_string = "<!-- release notes start -->"
+title_format = "## [Version {version}](https://github.com/georgedouzas/cluster-over-sampling/releases/tag/{version}) ({project_date})"
+underlines = ["", "", ""]
+
+[[tool.towncrier.type]]
+directory = "build"
+name = "Build system or external dependencies changes"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "ci"
+name = "CI configuration files and scripts changes"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "docs"
+name = "Documentation improvements"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "feat"
+name = "New feature implementation"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "fix"
+name = "Bug fix"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "perf"
+name = "Performance improvement"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "refactor"
+name = "Code refactor"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "test"
+name = "Test additions or corrections"
+showcontent = true
