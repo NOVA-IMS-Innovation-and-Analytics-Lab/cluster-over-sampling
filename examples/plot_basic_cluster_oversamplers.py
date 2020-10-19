@@ -79,7 +79,11 @@ def compare_f1_scores(X_train, X_test, y_train, y_test, clf, oversampler):
     y_pred = ovs_clf.fit(X_train, y_train).predict(X_test)
     ovs_name = oversampler.__class__.__name__
     ovs_score = f1_score(y_test, y_pred, average='macro')
-    return pd.DataFrame([[ovs_score]], columns=['F-score'], index=[ovs_name],)
+    return pd.DataFrame(
+        [[ovs_score]],
+        columns=['F-score'],
+        index=[ovs_name],
+    )
 
 
 ###############################################################################

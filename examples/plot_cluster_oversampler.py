@@ -81,7 +81,7 @@ def plot_data(X, y, oversampler, ax):
 
 
 def compare_f1_scores(X_train, X_test, y_train, y_test, clf, oversampler, clusterer):
-    """Compare F1 scores of oversamplers with and 
+    """Compare F1 scores of oversamplers with and
     without clustering."""
     ovs_clf = make_pipeline(clone(oversampler), clf)
     clr_ovs_clf = make_pipeline(ClusterOverSampler(clone(oversampler), clusterer), clf)
