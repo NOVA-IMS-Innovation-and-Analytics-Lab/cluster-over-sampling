@@ -277,3 +277,35 @@ def test_display_warning(oversampler):
     )
     with pytest.warns(FitFailedWarning):
         oversampler.fit_resample(X, y)
+
+
+@pytest.mark.parametrize('oversampler', CLUSTER_OVERSAMPLERS)
+def test_two_majority_classes(oversampler):
+
+    oversampler = clone(oversampler)
+
+    label_mapper = {
+        0: 13,
+        1: 1,
+        2: 5,
+        3: 7,
+        4: 3,
+        5: 10,
+        6: 6,
+        7: 8,
+        8: 9,
+        9: 11,
+        10: 4,
+    }
+
+    X, y = make_classification(
+        n_samples=19 * len(label_mapper),
+        n_classes=len(label_mapper),
+        n_informative=30,
+        n_features=145,
+        random_state=42,
+    )
+
+    y = np.array([label_mapper[i] for i in y])
+
+    oversampler.fit_resample(X, y)

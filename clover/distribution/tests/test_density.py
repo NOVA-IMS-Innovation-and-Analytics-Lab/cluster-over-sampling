@@ -26,12 +26,13 @@ X = np.array(
         [3.0, -1.0],
         [2.0, -1.0],
         [4.0, -1.0],
-        [4.0, -1.0],
     ]
 )
-y_bin = np.array([1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0])
-y_multi = np.array([0, 1, 2, 1, 2, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 0])
-LABELS = np.array([0, 0, 0, 1, 1, 2, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4])
+y_bin = np.array([1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1])
+y_multi = np.array([0, 1, 2, 1, 2, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2])
+y_partial_tie = np.array([0, 1, 1, 2, 2, 1, 1, 0, 0, 0, 0, 0, 1, 1, 2])
+y_full_tie = np.array([0, 1, 2, 1, 2, 1, 2, 2, 0, 0, 0, 0, 1, 1, 2])
+LABELS = np.array([0, 0, 0, 1, 1, 2, 3, 3, 3, 3, 3, 3, 4, 4, 4])
 NEIGHBORS_BIN = np.array([(0, 1), (0, 2), (0, 3), (4, 2), (2, 3)])
 NEIGHBORS_MULTI = np.array([(0, 1), (1, 4), (2, 3)])
 DISTRIBUTOR = DensityDistributor(filtering_threshold=0.6, distances_exponent=1)
@@ -58,6 +59,27 @@ def test_filtered_clusters_multiclass():
     ]
 
 
+def test_filtered_clusters_multiclass_partial_tie():
+    """Test the identification of filtered clusters for the multiclass case with
+    two majority classes."""
+    distributor = (
+        clone(DISTRIBUTOR)
+        .set_params(filtering_threshold=1.0)
+        .fit(X, y_partial_tie, LABELS)
+    )
+    assert distributor.filtered_clusters_ == [(1, 2), (4, 2)]
+
+
+def test_filtered_clusters_multiclass_full_tie():
+    """Test the identification of filtered clusters for the multiclass case."""
+    distributor = (
+        clone(DISTRIBUTOR)
+        .set_params(filtering_threshold=1.0)
+        .fit(X, y_full_tie, LABELS)
+    )
+    assert distributor.filtered_clusters_ == []
+
+
 def test_clusters_density_binary():
     """Test the calculation of filtered clusters density for the binary case."""
     distributor = clone(DISTRIBUTOR).fit(X, y_bin, LABELS)
@@ -77,6 +99,29 @@ def test_clusters_density_multiclass():
         (4, 1): 2.0,
         (4, 2): 2.0,
     }
+
+
+def test_clusters_density_multiclass_partial_tie():
+    """Test the calculation of filtered clusters density for the multiclass case."""
+    distributor = (
+        clone(DISTRIBUTOR)
+        .set_params(filtering_threshold=1.0)
+        .fit(X, y_partial_tie, LABELS)
+    )
+    assert distributor.clusters_density_ == {
+        (1, 2): 4.0,
+        (4, 2): 4.0,
+    }
+
+
+def test_clusters_density_multiclass_full_tie():
+    """Test the calculation of filtered clusters density for the multiclass case."""
+    distributor = (
+        clone(DISTRIBUTOR)
+        .set_params(filtering_threshold=1.0)
+        .fit(X, y_full_tie, LABELS)
+    )
+    assert distributor.clusters_density_ == {}
 
 
 def test_clusters_density_no_filtered():
@@ -135,7 +180,7 @@ def test_distribution_ratio_neighbor():
 def test_fit_default():
     """Test the fit method for default initialization."""
     distributor = clone(DISTRIBUTOR).fit(X, y_bin, None, None)
-    assert distributor.majority_class_label_ == 0
+    assert distributor.majority_class_labels_ == [0]
     assert hasattr(distributor, 'filtered_clusters_')
     assert hasattr(distributor, 'clusters_density_')
     np.testing.assert_array_equal(distributor.labels_, np.repeat(0, len(X)))
@@ -163,6 +208,17 @@ def test_fit_multiclass_intra():
     np.testing.assert_almost_equal(distributor.intra_distribution_[(0, 2)], 1.0 / 3.0)
     np.testing.assert_almost_equal(distributor.intra_distribution_[(1, 2)], 1.0 / 3.0)
     np.testing.assert_almost_equal(distributor.intra_distribution_[(4, 2)], 1.0 / 3.0)
+
+
+def test_fit_multiclass_intra_partial_tie():
+    """Test the fit method for the multiclass case and intra-cluster generation."""
+    distributor = (
+        clone(DISTRIBUTOR)
+        .set_params(filtering_threshold=1.0)
+        .fit(X, y_partial_tie, LABELS)
+    )
+    np.testing.assert_almost_equal(distributor.intra_distribution_[(1, 2)], 0.5)
+    np.testing.assert_almost_equal(distributor.intra_distribution_[(4, 2)], 0.5)
 
 
 def test_fit_binary_inter():
@@ -203,6 +259,18 @@ def test_fit_multiclass_inter():
     np.testing.assert_almost_equal(
         distributor.inter_distribution_[((1, 2), (4, 2))], 0.5
     )
+
+
+def test_fit_multiclass_inter_partial_tie():
+    """Test the fit method for the multiclass case and inter-cluster generation."""
+    distributor = (
+        clone(DISTRIBUTOR)
+        .set_params(distribution_ratio=0.0, filtering_threshold=1.0)
+        .fit(X, y_partial_tie, LABELS, NEIGHBORS_MULTI)
+    )
+    np.testing.assert_equal(distributor.labels_, LABELS)
+    np.testing.assert_equal(distributor.neighbors_, NEIGHBORS_MULTI)
+    np.testing.assert_almost_equal(distributor.inter_distribution_[((1, 2), (4, 2))], 1)
 
 
 def test_fit_binary_intra_inter():
@@ -253,4 +321,21 @@ def test_fit_multiclass_intra_inter():
     )
     np.testing.assert_almost_equal(
         distributor.inter_distribution_[((1, 2), (4, 2))], 0.25
+    )
+
+
+def test_fit_multiclass_intra_inter_partial_tie():
+    """Test the fit method for the multiclass case, intra-cluster
+    and inter-cluster generation."""
+    distributor = (
+        clone(DISTRIBUTOR)
+        .set_params(distribution_ratio=0.5, filtering_threshold=1.0)
+        .fit(X, y_partial_tie, LABELS, NEIGHBORS_MULTI)
+    )
+    np.testing.assert_equal(distributor.labels_, LABELS)
+    np.testing.assert_equal(distributor.neighbors_, NEIGHBORS_MULTI)
+    np.testing.assert_almost_equal(distributor.intra_distribution_[(1, 2)], 1.0 / 4.0)
+    np.testing.assert_almost_equal(distributor.intra_distribution_[(4, 2)], 1.0 / 4.0)
+    np.testing.assert_almost_equal(
+        distributor.inter_distribution_[((1, 2), (4, 2))], 0.5
     )

@@ -327,8 +327,7 @@ class ClusterOverSampler(BaseOverSampler):
         return (X_, y_) if len(output) == 2 else (X_, y_, output[2])
 
     def _cluster_sample(self, clusters_data, X, y):
-        """Generate artificial data inside clusters or between clusters.
-        """
+        """Generate artificial data inside clusters or between clusters."""
         generated_data = Parallel(n_jobs=self.n_jobs)(
             delayed(_generate_in_cluster)(self.oversampler_, self.transformer_, *data)
             for data in clusters_data
@@ -393,7 +392,9 @@ class ClusterOverSampler(BaseOverSampler):
     def _check_sampling_strategy(self, y):
         """Check sampling strategy."""
         self.sampling_strategy_ = check_sampling_strategy(
-            self.oversampler_.sampling_strategy, y, self._sampling_type,
+            self.oversampler_.sampling_strategy,
+            y,
+            self._sampling_type,
         )
         return self
 

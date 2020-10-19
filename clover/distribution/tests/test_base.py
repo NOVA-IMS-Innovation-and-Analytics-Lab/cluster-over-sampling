@@ -22,7 +22,8 @@ def test_fit(n_samples, n_classes, weights):
         n_informative=5,
     )
     distributor = BaseDistributor().fit(X, y)
-    assert distributor.majority_class_label_ == 0
+    assert len(distributor.majority_class_labels_) == 1
+    assert distributor.majority_class_labels_[0] == 0
     np.testing.assert_array_equal(distributor.labels_, np.repeat(0, n_samples))
     np.testing.assert_array_equal(distributor.neighbors_, np.empty((0, 2)))
     assert distributor.intra_distribution_ == {

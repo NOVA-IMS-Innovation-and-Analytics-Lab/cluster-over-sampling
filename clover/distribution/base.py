@@ -3,6 +3,7 @@ Base class for distributors.
 """
 
 # Author: Georgios Douzas <gdouzas@icloud.com>
+#         Joao Fonseca <fonsecajoao@protonmail.com>
 # License: MIT
 
 from collections import Counter
@@ -49,7 +50,7 @@ class BaseDistributor(BaseEstimator):
         proportions = {
             class_label: 0.0
             for class_label in self.unique_class_labels_
-            if class_label != self.majority_class_label_
+            if class_label not in self.majority_class_labels_
         }
         for (_, class_label), proportion in self.intra_distribution_.items():
             proportions[class_label] += proportion
@@ -117,7 +118,12 @@ class BaseDistributor(BaseEstimator):
         X, y = check_X_y(X, y, dtype=None)
 
         # Set statistics
-        self.majority_class_label_ = Counter(y).most_common()[0][0]
+        counts = Counter(y)
+        self.majority_class_labels_ = [
+            class_label
+            for class_label, class_label_count in counts.items()
+            if class_label_count == max(counts.values())
+        ]
         self.unique_cluster_labels_ = (
             np.unique(labels) if labels is not None else np.array(0, dtype=int)
         )
@@ -138,7 +144,7 @@ class BaseDistributor(BaseEstimator):
         self.intra_distribution_ = {
             (0, class_label): 1.0
             for class_label in np.unique(y)
-            if class_label != self.majority_class_label_
+            if class_label not in self.majority_class_labels_
         }
         self.inter_distribution_ = {}
 

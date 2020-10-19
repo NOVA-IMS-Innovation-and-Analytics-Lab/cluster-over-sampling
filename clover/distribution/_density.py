@@ -3,6 +3,7 @@ Implementation of the DensityDistributor class.
 """
 
 # Author: Georgios Douzas <gdouzas@icloud.com>
+#         Joao Fonseca <fonsecajoao@protonmail.com>
 # License: MIT
 
 from warnings import catch_warnings, filterwarnings
@@ -123,13 +124,18 @@ class DensityDistributor(BaseDistributor):
     >>> from clover.distribution import DensityDistributor
     >>> from sklearn.datasets import load_iris
     >>> from sklearn.cluster import KMeans
-    >>> X, y = load_iris(return_X_y=True)
+    >>> from imblearn.datasets import make_imbalance
+    >>> X, y = make_imbalance(
+    ...     *load_iris(return_X_y=True),
+    ...     sampling_strategy={0:50, 1:40, 2:30},
+    ...     random_state=0
+    ... )
     >>> labels = KMeans(random_state=0).fit_predict(X, y)
     >>> density_distributor = DensityDistributor().fit(X, y, labels)
     >>> density_distributor.filtered_clusters_
-    [(7, 1), (4, 1), (3, 1), (1, 1), (6, 2), (1, 2), (2, 2), (4, 2)]
+    [(2, 1), (4, 1), (6, 1), (0, 2), (3, 2), (2, 2), (4, 2)]
     >>> density_distributor.intra_distribution_
-    {(7, 1): 0.0660967961... (4, 2): 0.0673207347...}
+    {(2, 1): 0.4288774060... (4, 2): 0.0819060420...}
     >>> density_distributor.inter_distribution_
     {}
     """
@@ -200,7 +206,7 @@ class DensityDistributor(BaseDistributor):
         unique_multi_labels = [
             multi_label
             for multi_label in multi_labels_counts.keys()
-            if multi_label[1] != self.majority_class_label_
+            if multi_label[1] not in self.majority_class_labels_
         ]
 
         # Identify filtered clusters
@@ -208,7 +214,7 @@ class DensityDistributor(BaseDistributor):
         for multi_label in unique_multi_labels:
             n_minority_samples = multi_labels_counts[multi_label]
             n_majority_samples = multi_labels_counts[
-                (multi_label[0], self.majority_class_label_)
+                (multi_label[0], self.majority_class_labels_[0])
             ]
             if n_majority_samples <= n_minority_samples * self.filtering_threshold_:
                 self.filtered_clusters_.append(multi_label)
