@@ -1,2 +1,0 @@
-som-learn>=0.1.1
-geometric-smote>=0.1.3

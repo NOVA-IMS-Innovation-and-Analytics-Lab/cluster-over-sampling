@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+      - development
+
+jobs:
+
+  checks:
+
+    strategy:
+      matrix:
+        os:
+        - ubuntu-latest
+        - macos-latest
+        - windows-latest
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Set up PDM
+      uses: pdm-project/setup-pdm@v3
+      with:
+        cache: true
+        cache-dependency-path: pyproject.toml
+
+    - name: Install dependencies
+      run: pdm install --no-editable -G maintenance -G check-quality -G check-types
+
+    - name: Check the code quality
+      run: pdm check-quality
+
+    - name: Check if the code is correctly typed
+      run: pdm check-types
+
+  tests:
+
+    strategy:
+      matrix:
+        os:
+        - ubuntu-latest
+        - macos-latest
+        - windows-latest
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Set up PDM
+      uses: pdm-project/setup-pdm@v3
+      with:
+        cache: true
+        cache-dependency-path: pyproject.toml
+
+    - name: Install dependencies
+      run: pdm install --no-editable -G maintenance -G test
+
+    - name: Run the test suite
+      run: pdm test
