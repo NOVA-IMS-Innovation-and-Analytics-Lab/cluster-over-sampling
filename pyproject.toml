@@ -188,36 +188,42 @@ title_format = "## [v{version}](https://github.com/georgedouzas/cluster-over-sam
 underlines = ["", "", ""]
 
 [[tool.towncrier.type]]
-directory = "feature"
-name = "Features and Improvements"
+directory = "build"
+name = "Build system or external dependencies changes"
 showcontent = true
 
 [[tool.towncrier.type]]
-directory = "bug"
-name = "Bug Fixes"
+directory = "ci"
+name = "CI configuration files and scripts changes"
 showcontent = true
 
 [[tool.towncrier.type]]
-directory = "doc"
-name = "Documentation"
+directory = "docs"
+name = "Documentation improvements"
 showcontent = true
 
 [[tool.towncrier.type]]
-directory = "dep"
-name = "Dependencies"
+directory = "feat"
+name = "New feature implementation"
 showcontent = true
 
 [[tool.towncrier.type]]
-directory = "removal"
-name = "Removals and Deprecations"
+directory = "fix"
+name = "Bug fix"
 showcontent = true
 
 [[tool.towncrier.type]]
-directory = "mnt"
-name = "Maintenance"
+directory = "perf"
+name = "Performance improvement"
 showcontent = true
 
 [[tool.towncrier.type]]
-directory = "various"
-name = "Various"
+directory = "refactor"
+name = "Code refactor"
 showcontent = true
+
+[[tool.towncrier.type]]
+directory = "test"
+name = "Test additions or corrections"
+showcontent = true
+

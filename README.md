@@ -9,7 +9,7 @@
 [ruff badge]: <https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/charliermarsh/ruff/main/assets/badge/v1.json>
 [ruff]: <https://github.com/charliermarsh/ruff>
 [mkdocs badge]: <https://img.shields.io/badge/docs-mkdocs%20material-blue.svg?style=flat>
-[mkdocs]: <https://georgedouzas.github.io/cluster-over-sampling/>
+[mkdocs]: <https://squidfunk.github.io/mkdocs-material>
 [version badge]: <https://img.shields.io/pypi/v/cluster-over-sampling.svg>
 [pythonversion badge]: <https://img.shields.io/pypi/pyversions/cluster-over-sampling.svg>
 [downloads badge]: <https://img.shields.io/pypi/dd/cluster-over-sampling>
@@ -19,16 +19,19 @@
 [zenodo badge]: <https://zenodo.org/badge/DOI/10.1016/j.eswa.2017.03.073.svg>
 [ci]: <https://github.com/georgedouzas/cluster-over-sampling/actions?query=workflow>
 [ci badge]: <https://github.com/georgedouzas/cluster-over-sampling/actions/workflows/ci.yml/badge.svg>
+[doc]: <https://github.com/georgedouzas/cluster-over-sampling/actions?query=workflow>
+[doc badge]: <https://github.com/georgedouzas/cluster-over-sampling/actions/workflows/doc.yml/badge.svg?branch=master>
 
 # cluster-over-sampling
 
-[![ci][ci badge]][ci]
+[![ci][ci badge]][ci] [![doc][doc badge]][doc]
 
 |                   | Tools |
 | --------          | -------- |
-| **Code**          | [![black][black badge]][black] [![ruff][ruff badge]][ruff] |
-| **Documentation** | [![mkdocs][mkdocs badge]][mkdocs] |
-| **PyPi**          | ![version][version badge] ![pythonversion][pythonversion badge] ![downloads][downloads badge] |
+| **Development**          | [![black][black badge]][black] [![ruff][ruff badge]][ruff] |
+| **Package**          | ![version][version badge] ![pythonversion][pythonversion badge] ![downloads][downloads badge] |
+| **Documentation** | [![mkdocs][mkdocs badge]][mkdocs]|
+| **Community** | [![gitter][gitter badge]][gitter] |
 
 ## Introduction
 

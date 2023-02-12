@@ -1,4 +1,4 @@
-name: Documentation Deployment
+name: Documentation
 
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -11,7 +11,7 @@ on:
 
 jobs:
 
-  doc-preview:
+  doc:
 
     runs-on: ubuntu-latest
 
