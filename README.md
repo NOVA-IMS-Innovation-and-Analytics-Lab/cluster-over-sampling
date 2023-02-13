@@ -26,7 +26,7 @@
 
 [![ci][ci badge]][ci] [![doc][doc badge]][doc]
 
-| *Category*        | *Tools* |
+| Category          | Tools    |
 | ------------------| -------- |
 | **Development**   | [![black][black badge]][black] [![ruff][ruff badge]][ruff] |
 | **Package**       | ![version][version badge] ![pythonversion][pythonversion badge] ![downloads][downloads badge] |
