@@ -15,8 +15,8 @@
 [downloads badge]: <https://img.shields.io/pypi/dd/cluster-over-sampling>
 [gitter]: <https://gitter.im/cluster-over-sampling/community>
 [gitter badge]: <https://badges.gitter.im/join%20chat.svg>
-[zenodo]: <https://doi.org/10.1016/j.eswa.2017.03.073>
-[zenodo badge]: <https://zenodo.org/badge/DOI/10.1016/j.eswa.2017.03.073.svg>
+[discussions]: <https://github.com/georgedouzas/cluster-over-sampling/discussions>
+[discussions badge]: <https://img.shields.io/github/discussions/georgedouzas/cluster-over-sampling>
 [ci]: <https://github.com/georgedouzas/cluster-over-sampling/actions?query=workflow>
 [ci badge]: <https://github.com/georgedouzas/cluster-over-sampling/actions/workflows/ci.yml/badge.svg>
 [doc]: <https://github.com/georgedouzas/cluster-over-sampling/actions?query=workflow>
@@ -26,12 +26,12 @@
 
 [![ci][ci badge]][ci] [![doc][doc badge]][doc]
 
-|                   | Tools |
-| --------          | -------- |
-| **Development**          | [![black][black badge]][black] [![ruff][ruff badge]][ruff] |
-| **Package**          | ![version][version badge] ![pythonversion][pythonversion badge] ![downloads][downloads badge] |
+| *Category*        | *Tools* |
+| ------------------| -------- |
+| **Development**   | [![black][black badge]][black] [![ruff][ruff badge]][ruff] |
+| **Package**       | ![version][version badge] ![pythonversion][pythonversion badge] ![downloads][downloads badge] |
 | **Documentation** | [![mkdocs][mkdocs badge]][mkdocs]|
-| **Community** | [![gitter][gitter badge]][gitter] |
+| **Communication** | [![gitter][gitter badge]][gitter] [![discussions][discussions badge]][discussions] |
 
 ## Introduction
 

@@ -39,9 +39,9 @@ gsmote = ["geometric-smote>=0.2.0"]
 all = ["som-learn>=0.1.1", "geometric-smote>=0.2.0"]
 
 [project.urls]
-Homepage = "https://georgedouzas.github.io/cluster-over-sampling"
-Documentation = "https://georgedouzas.github.io/cluster-over-sampling"
-Changelog = "https://georgedouzas.github.io/cluster-over-sampling/changelog"
+Homepage = "https://cluster-over-sampling.vercel.app/"
+Documentation = "https://cluster-over-sampling.vercel.app/"
+Changelog = "https://cluster-over-sampling.vercel.app/overview/changelog/"
 Repository = "https://github.com/georgedouzas/cluster-over-sampling"
 Issues = "https://github.com/georgedouzas/cluster-over-sampling/issues"
 Discussions = "https://github.com/georgedouzas/cluster-over-sampling/discussions"
@@ -226,4 +226,3 @@ showcontent = true
 directory = "test"
 name = "Test additions or corrections"
 showcontent = true
-
