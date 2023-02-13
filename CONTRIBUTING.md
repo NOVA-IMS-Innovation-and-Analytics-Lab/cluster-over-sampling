@@ -49,7 +49,7 @@ The next steps should be followed during development:
 - `pdm test` to run the tests.
 - `pdm serve-docs` if you updated the documentation or the project dependencies to check that everything looks good.
 
-## Pull requests guidelines
+## Pull Request guidelines
 
 Link to any related issue in the Pull Request message. We also recommend using fixups:
 
