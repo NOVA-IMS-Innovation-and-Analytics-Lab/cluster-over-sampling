@@ -67,6 +67,8 @@ check-dependencies = "nox -s check_dependencies"
 check-types = "nox -s check_types"
 test = "nox -s test"
 coverage = "nox -s coverage"
+changelog = "nox -s changelog"
+release = "nox -s release"
 
 [tool.pdm.dev-dependencies]
 maintenance = [
@@ -119,6 +121,7 @@ release = [
     "towncrier>=19.2",
     "parver>=0.3",
     "setuptools-scm>=7.1.0",
+    "click>=8.1.3",
 ]
 
 [tool.black]
@@ -184,7 +187,7 @@ filename = "CHANGELOG.md"
 template = "news/changelog_template.jinja"
 issue_format = "([Issue #{issue}](https://github.com/georgedouzas/cluster-over-sampling/issues/{issue}))"
 start_string = "<!-- release notes start -->"
-title_format = "## [v{version}](https://github.com/georgedouzas/cluster-over-sampling/releases/tag/{version}) ({project_date})"
+title_format = "## [Version {version}](https://github.com/georgedouzas/cluster-over-sampling/releases/tag/{version}) ({project_date})"
 underlines = ["", "", ""]
 
 [[tool.towncrier.type]]
