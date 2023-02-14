@@ -4,10 +4,7 @@ import os
 from glob import glob
 from pathlib import Path
 
-import click
 import nox
-from parver import Version
-from setuptools_scm import get_version
 
 os.environ.update({'PDM_IGNORE_SAVED_PYTHON': '1', 'PDM_USE_VENV': '1'})
 
@@ -135,6 +132,8 @@ def changelog(session: nox.Session) -> None:
     Arguments:
         session: The nox session.
     """
+    import click
+
     issue_num = click.prompt('Issue number (start with + for orphan fragment)')
     frag_type = click.prompt('News fragment type', type=str)
     session.run('towncrier', 'create', '--edit', f'{issue_num}.{frag_type}.txt', external=True)
@@ -147,6 +146,10 @@ def release(session: nox.Session) -> None:
     Arguments:
         session: The nox session.
     """
+    import click
+    from parver import Version
+    from setuptools_scm import get_version
+
     try:
         current_version = Version.parse(get_version()).base_version()
     except LookupError:

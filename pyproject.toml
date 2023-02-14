@@ -116,6 +116,10 @@ coverage = [
     "pytest-cov>=3.0",
     "pytest-xdist>=2.4",
 ]
+chagelog = [
+    "towncrier>=19.2",
+    "click>=8.1.3",
+]
 release = [
     "twine>=4.0.0",
     "towncrier>=19.2",
