@@ -4,7 +4,10 @@ import os
 from glob import glob
 from pathlib import Path
 
+import click
 import nox
+from parver import Version
+from setuptools_scm import get_version
 
 os.environ.update({'PDM_IGNORE_SAVED_PYTHON': '1', 'PDM_USE_VENV': '1'})
 
@@ -126,18 +129,44 @@ def coverage(session: nox.Session) -> None:
 
 
 @nox.session
-def release(session: nox.Session, version: str) -> None:
-    """Release a new Python package.
+def changelog(session: nox.Session) -> None:
+    """Add news fragment to be used when chengelog is built.
 
     Arguments:
         session: The nox session.
-        version: The new version number to use.
     """
-    version = session.posargs[0]
-    session.run('git', 'add', 'pyproject.toml', 'CHANGELOG.md', external=True)
-    session.run('git', 'commit', '-m', f'Release {version}', external=True)
-    session.run('git', 'tag', version, external=True)
+    issue_num = click.prompt('Issue number (start with + for orphan fragment)', type=int)
+    frag_type = click.prompt('News fragment type', type=str)
+    session.run('towncrier', 'create', '--edit', f'{issue_num}.{frag_type}.txt', external=True)
+
+
+@nox.session
+def release(session: nox.Session) -> None:
+    """Kick off an automated release process.
+
+    Arguments:
+        session: The nox session.
+    """
+    try:
+        current_version = Version.parse(get_version()).base_version()
+    except LookupError:
+        session.skip('Failed to detect the current version')
+    increment_types = ['major', 'minor', 'patch']
+    increment_type = click.prompt(
+        f'Version {current_version} was detected. Select the version increment type',
+        type=click.Choice(increment_types),
+    )
+    next_version = str(current_version.bump_release(index=increment_types.index(increment_type)))
+    proceed = click.confirm(
+        f'You are about to increment the version {current_version} to {next_version}. Are you sure?',
+    )
+    if not proceed:
+        session.skip()
+    session.run('towncrier', 'build', '--yes', '--version', next_version, external=True)
+    session.run('git', 'add', 'CHANGELOG.md', external=True)
+    session.run('git', 'commit', '-m', f'Release {next_version}', external=True)
+    session.run('git', 'tag', '-a', next_version, external=True)
     session.run('git', 'push', external=True)
-    session.run('git', 'push', '-tags', external=True)
+    session.run('git', 'push', '--tags', external=True)
     session.run('pdm', 'build', external=True)
     session.run('twine', 'upload', '--skip-existing', 'dist/*', external=True)
