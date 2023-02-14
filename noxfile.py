@@ -135,7 +135,7 @@ def changelog(session: nox.Session) -> None:
     Arguments:
         session: The nox session.
     """
-    issue_num = click.prompt('Issue number (start with + for orphan fragment)', type=int)
+    issue_num = click.prompt('Issue number (start with + for orphan fragment)')
     frag_type = click.prompt('News fragment type', type=str)
     session.run('towncrier', 'create', '--edit', f'{issue_num}.{frag_type}.txt', external=True)
 
