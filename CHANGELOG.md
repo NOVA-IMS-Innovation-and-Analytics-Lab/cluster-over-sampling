@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 
 <!-- release notes start -->
+## [Version 0.3.1](https://github.com/georgedouzas/cluster-over-sampling/releases/tag/0.3.1) (2023-02-16)
+
+### CI configuration files and scripts changes
+
+- Merged various tasks and added options
+
+
 ## [Version 0.3.0](https://github.com/georgedouzas/cluster-over-sampling/releases/tag/0.3.0) (2023-02-14)
 
 ### Documentation improvements
