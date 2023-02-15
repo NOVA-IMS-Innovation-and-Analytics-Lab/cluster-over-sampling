@@ -8,7 +8,7 @@ description = "Implementation of a general interface for clustering based over-s
 authors = [{name = "Georgios Douzas", email = "gdouzas@icloud.com"}]
 license = "MIT"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.10,<3.12"
 keywords = ["machine learning", "imbalanced learning", "oversampling"]
 dynamic = ["version"]
 classifiers = [
@@ -58,17 +58,12 @@ htmlcov pip-wheel-metadata site __pycache__ \
 && find . -type d -name __pycache__ | xargs rm -rf \
 && find . -name '*.rej'  -delete \
 && find . -name '.coverage*'  -delete"""}
-build-docs = "nox -s build_docs"
-serve-docs = "nox -s serve_docs"
-deploy-docs = "nox -s deploy_docs"
-format-code = "nox -s format_code"
-check-quality = "nox -s check_quality"
-check-dependencies = "nox -s check_dependencies"
-check-types = "nox -s check_types"
-test = "nox -s test"
-coverage = "nox -s coverage"
-changelog = "nox -s changelog"
-release = "nox -s release"
+docs = "nox --error-on-external-run -R -s docs -- {args:serve}"
+formatting = "nox --error-on-external-run -R -s formatting -- {args:all}"
+checks = "nox --error-on-external-run -R -s checks -- {args:all}"
+tests = "nox --error-on-external-run -R -s tests"
+changelog = "nox --error-on-external-run -R -s changelog"
+release = "nox --error-on-external-run -R -s release"
 
 [tool.pdm.dev-dependencies]
 maintenance = [
@@ -89,32 +84,24 @@ docs = [
     'pandas>=1.5.0',
     "Pillow>=9.4.0",
 ]
-format-code = [
+formatting = [
     "black>=21.10b0",
     "docformatter>=1.5.1",
 ]
-check-quality = [
+checks = [
     "ruff>=0.0.237",
-]
-check-dependencies = [
     "safety>=2",
-]
-check-types = [
     "mypy>=0.910",
     "types-markdown>=3.3",
     "types-toml>=0.10",
     "nptyping>=2.4.1"
 ]
-test = [
+tests = [
     "pytest>=6.2",
     "pytest-cov>=3.0",
     "pytest-randomly>=3.10",
     "pytest-xdist>=2.4",
     "nptyping>=2.4.1"
-]
-coverage = [
-    "pytest-cov>=3.0",
-    "pytest-xdist>=2.4",
 ]
 chagelog = [
     "towncrier>=19.2",
