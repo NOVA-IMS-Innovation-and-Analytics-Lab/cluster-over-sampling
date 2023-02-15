@@ -29,7 +29,7 @@ jobs:
       run: pdm install --no-editable -G maintenance -G docs
     
     - name: Build documentation
-      run: pdm build-docs
+      run: pdm docs build
 
     - name: Install Vercel CLI
       run: npm install --global vercel@latest

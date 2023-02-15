@@ -30,10 +30,10 @@ jobs:
         cache-dependency-path: pyproject.toml
 
     - name: Install dependencies
-      run: pdm install --no-editable -G maintenance -G check-quality -G check-types
+      run: pdm install --no-editable -G maintenance -G checks
 
     - name: Check the code quality
-      run: pdm check-quality
+      run: pdm checks quality
 
     - name: Check if the code is correctly typed
       run: pdm check-types
@@ -60,7 +60,7 @@ jobs:
         cache-dependency-path: pyproject.toml
 
     - name: Install dependencies
-      run: pdm install --no-editable -G maintenance -G test
+      run: pdm install --no-editable -G maintenance -G tests
 
     - name: Run the test suite
-      run: pdm test
+      run: pdm tests
