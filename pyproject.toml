@@ -62,7 +62,7 @@ docs = "nox --error-on-external-run -R -s docs -- {args:serve}"
 formatting = "nox --error-on-external-run -R -s formatting -- {args:all}"
 checks = "nox --error-on-external-run -R -s checks -- {args:all}"
 tests = "nox --error-on-external-run -R -s tests"
-changelog = "nox --error-on-external-run -R -s changelog"
+changelog = "nox --error-on-external-run -R -s changelog -- {args:all}"
 release = "nox --error-on-external-run -R -s release"
 
 [tool.pdm.dev-dependencies]
@@ -109,9 +109,6 @@ chagelog = [
 ]
 release = [
     "twine>=4.0.0",
-    "towncrier>=19.2",
-    "parver>=0.3",
-    "setuptools-scm>=7.1.0",
     "click>=8.1.3",
 ]
 

@@ -109,51 +109,39 @@ def tests(session: nox.Session) -> None:
 
 @nox.session(python=PYTHON_VERSION_MIN)
 def changelog(session: nox.Session) -> None:
-    """Add news fragment to be used when changelog is built.
+    """Add news fragment or build changelog.
 
     Arguments:
         session: The nox session.
     """
+    check_cli(session, ['fragment', 'build'])
     session.run('pdm', 'install', '-dG', 'changelog', external=True)
     import click
 
-    issue_num = click.prompt('Issue number (start with + for orphan fragment)')
-    frag_type = click.prompt('News fragment type', type=str)
-    session.run('towncrier', 'create', '--edit', f'{issue_num}.{frag_type}.txt')
+    if session.posargs[0] == 'fragment':
+        issue_num = click.prompt('Issue number (start with + for orphan fragment)')
+        frag_type = click.prompt('News fragment type', type=str)
+        session.run('towncrier', 'create', '--edit', f'{issue_num}.{frag_type}.txt')
+    if session.posargs[0] == 'build':
+        version = click.prompt('Incremented version number to use')
+        session.run('towncrier', 'build', '--yes', '--version', version)
 
 
 @nox.session(python=PYTHON_VERSION_MIN)
 def release(session: nox.Session) -> None:
-    """Kick off an automated release process.
+    """Kick off a release process.
 
     Arguments:
         session: The nox session.
     """
     session.run('pdm', 'install', '-dG', 'release', external=True)
     import click
-    from parver import Version
-    from setuptools_scm import get_version
 
+    version = click.prompt('Incremented version number to use')
+    session.run('git', 'checkout', 'master')
     try:
-        current_version = Version.parse(get_version()).base_version()
-    except LookupError:
-        session.skip('Failed to detect the current version')
-    increment_types = ['major', 'minor', 'patch']
-    increment_type = click.prompt(
-        f'Version {current_version} was detected. Select the version increment type',
-        type=click.Choice(increment_types),
-    )
-    next_version = str(current_version.bump_release(index=increment_types.index(increment_type)))
-    proceed = click.confirm(
-        f'You are about to increment the version {current_version} to {next_version}. Are you sure?',
-    )
-    if not proceed:
-        session.skip()
-    session.run('towncrier', 'build', '--yes', '--version', next_version)
-    session.run('git', 'add', 'CHANGELOG.md')
-    session.run('git', 'commit', '-m', f'Release {next_version}')
-    session.run('git', 'tag', '-a', next_version, '-m', f'{increment_type.capitalize()} version number increment')
-    session.run('git', 'push')
-    session.run('git', 'push', '--tags')
-    session.run('pdm', 'build', external=True)
-    session.run('twine', 'upload', '--skip-existing', 'dist/*')
+        session.run('git', 'tag', '-a', version)
+        session.run('git', 'push', '--tags')
+    finally:
+        session.run('pdm', 'build', external=True)
+        session.run('twine', 'upload', '--skip-existing', 'dist/*')
