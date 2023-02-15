@@ -138,10 +138,10 @@ def release(session: nox.Session) -> None:
     import click
 
     version = click.prompt('Incremented version number to use')
-    session.run('git', 'checkout', 'master')
+    session.run('git', 'checkout', 'master', external=True)
     try:
-        session.run('git', 'tag', '-a', version)
-        session.run('git', 'push', '--tags')
+        session.run('git', 'tag', '-a', version, external=True)
+        session.run('git', 'push', '--tags', external=True)
     finally:
         session.run('pdm', 'build', external=True)
         session.run('twine', 'upload', '--skip-existing', 'dist/*')
