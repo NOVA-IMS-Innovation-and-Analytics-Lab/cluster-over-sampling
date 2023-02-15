@@ -114,11 +114,11 @@ def changelog(session: nox.Session) -> None:
     Arguments:
         session: The nox session.
     """
-    check_cli(session, ['fragment', 'build'])
+    check_cli(session, ['add', 'build'])
     session.run('pdm', 'install', '-dG', 'changelog', external=True)
     import click
 
-    if session.posargs[0] == 'fragment':
+    if session.posargs[0] == 'add':
         issue_num = click.prompt('Issue number (start with + for orphan fragment)')
         frag_type = click.prompt('News fragment type', type=str)
         session.run('towncrier', 'create', '--edit', f'{issue_num}.{frag_type}.txt')
