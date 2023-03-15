@@ -10,6 +10,7 @@ pip-wheel-metadata/
 .pytest_cache/
 .mypy_cache/
 site/
+docs/generated/
 pdm.lock
 .pdm.toml
 __pypackages__/
@@ -18,4 +19,3 @@ __pypackages__/
 .ruff_cache
 .vscode
 .DS_Store
-.vercel

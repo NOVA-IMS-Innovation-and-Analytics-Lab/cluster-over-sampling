@@ -6,8 +6,8 @@ body:
 - type: markdown
   attributes:
     value: >
-      **Before submitting a bug, please make sure the issue hasn't been already addressed by searching 
-      through [the past issues](https://github.com/georgedouzas/cluster-over-sampling/issues).**
+      **Before submitting a bug, please make sure the issue hasn't been already addressed by searching
+      through [the past issues](htpps://github/georgedouzas/cluster-over-sampling/issues).**
 - type: textarea
   attributes:
     label: Describe the bug
@@ -19,7 +19,7 @@ body:
   attributes:
     label: Steps or code to reproduce the bug
     description: |
-      Please add a minimal code example that can reproduce the error when running it. 
+      Please add a minimal code example that can reproduce the error when running it.
       If the code is too long, feel free to put it in a public gist and link it in the issue.
     placeholder: |
       ```
@@ -40,7 +40,7 @@ body:
   attributes:
     label: Actual Results
     description: |
-      Please paste or describe the results you observe instead of the expected results. If you observe an error, please paste 
+      Please paste or describe the results you observe instead of the expected results. If you observe an error, please paste
       the error message including the **full traceback** of the exception.
     placeholder: >
       Please paste or specifically describe the actual output or traceback.
