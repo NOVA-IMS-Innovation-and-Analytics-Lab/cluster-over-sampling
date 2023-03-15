@@ -1,6 +1,6 @@
 # Pull Request Guide
 
-## Checklist 
+## Checklist
 
 Please check the following:
 
@@ -12,14 +12,13 @@ Please check the following:
 
 What kind of change does this Pull Request introduce?
 
-- [ ] fix: Bug fix.
 - [ ] feat: New feature implementation.
-- [ ] build: Build system or external dependencies changes.
-- [ ] ci: CI configuration files and scripts changes.
-- [ ] docs: Documentation improvements.
-- [ ] perf: Performance improvement.
-- [ ] refactor: Code refactor.
-- [ ] test: Test additions or corrections.
+- [ ] fix: Bug fix.
+- [ ] docs: Documentation changes.
+- [ ] style: Code style or format changes.
+- [ ] refactor: Changes that are not features or bug fixes.
+- [ ] tests: Test additions or corrections.
+- [ ] chore: Maintenance code changes.
 - [ ] other
 
 ## Current behaviour

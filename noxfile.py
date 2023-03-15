@@ -2,13 +2,12 @@
 
 import os
 from pathlib import Path
-from shutil import which
 
 import nox
 
 os.environ.update({'PDM_IGNORE_SAVED_PYTHON': '1', 'PDM_USE_VENV': '1'})
 
-PYTHON_VERSION_MIN, *_ = PYTHON_VERSIONS = ['3.10', '3.11']
+PYTHON_VERSIONS = ['3.10', '3.11']
 FILES = ['src', 'tests', 'docs', 'noxfile.py']
 
 
@@ -19,39 +18,27 @@ def check_cli(session: nox.Session, args: list[str]) -> None:
         session: The nox session.
         args: The available CLI arguments.
     """
-    if len(session.posargs) > 1 or session.posargs[0] not in args:
-        available_args = ', '.join([f'`{arg}`' for arg in args])
-        session.skip(
-            f'Available options should be one of {available_args}. Instead `{" ".join(session.posargs)}` was given',
-        )
+    available_args = ', '.join([f'`{arg}`' for arg in args])
+    msg = f'Available subcommands are one of {available_args}.'
+    if not session.posargs:
+        session.skip(f'{msg} No subbcommand was provided')
+    elif len(session.posargs) > 1 or session.posargs[0] not in args:
+        session.skip(f'{msg} Instead `{" ".join(session.posargs)}` was given')
 
 
-@nox.session(python=PYTHON_VERSION_MIN)
+@nox.session
 def docs(session: nox.Session) -> None:
-    """Build, serve or deploy the documentation.
+    """Build or serve.
 
     Arguments:
         session: The nox session.
     """
-    check_cli(session, ['serve', 'build', 'deploy'])
+    check_cli(session, ['serve', 'build'])
     session.run('pdm', 'install', '-dG', 'docs', external=True)
-    if session.posargs[0] != 'deploy':
-        session.run('mkdocs', session.posargs[0])
-    else:
-        if which('vercel') is None:
-            session.skip('You should first install the `vercel` command')
-        session.run(
-            'vercel',
-            'pull',
-            '--yes',
-            '--environment=production',
-            '--token=${{ secrets.VERCEL_TOKEN }}',
-            external=True,
-        )
-        session.run('vercel', 'deploy', '--prod', '--token=${{ secrets.VERCEL_TOKEN }}', 'site', external=True)
+    session.run('mkdocs', session.posargs[0])
 
 
-@nox.session(python=PYTHON_VERSION_MIN)
+@nox.session
 @nox.parametrize('file', FILES)
 def formatting(session: nox.Session, file: str) -> None:
     """Format the code.
@@ -68,7 +55,7 @@ def formatting(session: nox.Session, file: str) -> None:
         session.run('docformatter', '--in-place', '--recursive', '--close-quotes-on-newline', file)
 
 
-@nox.session(python=PYTHON_VERSION_MIN)
+@nox.session(python=PYTHON_VERSIONS)
 @nox.parametrize('file', FILES)
 def checks(session: nox.Session, file: str) -> None:
     """Check code quality, dependencies or type annotations.
@@ -85,7 +72,13 @@ def checks(session: nox.Session, file: str) -> None:
         session.run('mypy', file)
     if session.posargs[0] in ['dependencies', 'all']:
         requirements_path = (Path(session.create_tmp()) / 'requirements.txt').as_posix()
-        session.run('pdm', 'export', '-f', 'requirements', '--without-hashes', '-o', requirements_path, external=True)
+        requirements_types = zip(
+            FILES,
+            [['--prod'], ['-dG', 'tests'], ['-dG', 'docs'], ['-dG', 'maintenance']],
+            strict=True,
+        )
+        args = ['pdm', 'export', '-f', 'requirements', '--without-hashes', '-o', requirements_path]
+        session.run(*(args + dict(requirements_types)[file]), external=True)
         session.run('safety', 'check', '-r', requirements_path)
 
 
@@ -107,40 +100,43 @@ def tests(session: nox.Session) -> None:
     session.run('coverage', 'html')
 
 
-@nox.session(python=PYTHON_VERSION_MIN)
+@nox.session
 def changelog(session: nox.Session) -> None:
     """Add news fragment or build changelog.
 
     Arguments:
         session: The nox session.
     """
-    check_cli(session, ['add', 'build'])
+    from git_changelog.cli import build_and_render
+
     session.run('pdm', 'install', '-dG', 'changelog', external=True)
-    import click
+    build_and_render(
+        repository='.',
+        output='CHANGELOG.md',
+        convention='angular',
+        template='keepachangelog',
+        parse_trailers=True,
+        parse_refs=False,
+        sections=['feat', 'fix', 'docs', 'style', 'refactor', 'tests', 'chore'],
+        bump_latest=True,
+    )
 
-    if session.posargs[0] == 'add':
-        issue_num = click.prompt('Issue number (start with + for orphan fragment)')
-        frag_type = click.prompt('News fragment type', type=str)
-        session.run('towncrier', 'create', '--edit', f'{issue_num}.{frag_type}.txt')
-    if session.posargs[0] == 'build':
-        version = click.prompt('Incremented version number to use')
-        session.run('towncrier', 'build', '--yes', '--version', version)
 
-
-@nox.session(python=PYTHON_VERSION_MIN)
+@nox.session
 def release(session: nox.Session) -> None:
     """Kick off a release process.
 
     Arguments:
         session: The nox session.
     """
+    if not session.posargs:
+        session.skip('No version was provided')
     session.run('pdm', 'install', '-dG', 'release', external=True)
-    import click
 
-    version = click.prompt('Incremented version number to use')
-    session.run('git', 'checkout', 'master', external=True)
+    session.run('git', 'add', 'pyproject.toml', 'CHANGELOG.md', external=True)
+    session.run('git', 'commit', '-m', f'chore: Release {session.posargs[0]}', external=True)
     try:
-        session.run('git', 'tag', '-a', version, external=True)
+        session.run('git', 'tag', session.posargs[0], external=True)
         session.run('git', 'push', '--tags', external=True)
     finally:
         session.run('pdm', 'build', external=True)

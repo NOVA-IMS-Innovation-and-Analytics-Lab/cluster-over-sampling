@@ -6,8 +6,12 @@
 [G-SOMO]: <https://www.sciencedirect.com/science/article/abs/pii/S095741742100662X>
 [black badge]: <https://img.shields.io/badge/%20style-black-000000.svg>
 [black]: <https://github.com/psf/black>
+[docformatter badge]: <https://img.shields.io/badge/%20formatter-docformatter-fedcba.svg>
+[docformatter]: <https://github.com/PyCQA/docformatter>
 [ruff badge]: <https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/charliermarsh/ruff/main/assets/badge/v1.json>
 [ruff]: <https://github.com/charliermarsh/ruff>
+[mypy badge]: <http://www.mypy-lang.org/static/mypy_badge.svg>
+[mypy]: <http://mypy-lang.org>
 [mkdocs badge]: <https://img.shields.io/badge/docs-mkdocs%20material-blue.svg?style=flat>
 [mkdocs]: <https://squidfunk.github.io/mkdocs-material>
 [version badge]: <https://img.shields.io/pypi/v/cluster-over-sampling.svg>
@@ -28,22 +32,14 @@
 
 | Category          | Tools    |
 | ------------------| -------- |
-| **Development**   | [![black][black badge]][black] [![ruff][ruff badge]][ruff] |
+| **Development**   | [![black][black badge]][black] [![ruff][ruff badge]][ruff] [![mypy][mypy badge]][mypy] [![docformatter][docformatter badge]][docformatter] |
 | **Package**       | ![version][version badge] ![pythonversion][pythonversion badge] ![downloads][downloads badge] |
 | **Documentation** | [![mkdocs][mkdocs badge]][mkdocs]|
 | **Communication** | [![gitter][gitter badge]][gitter] [![discussions][discussions badge]][discussions] |
 
 ## Introduction
 
-[SMOTE] algorithm and any other oversampling method based on the SMOTE data generation
-mechanism creates synthetic samples along line segments that join minority class instances. SMOTE addresses only the issue of
-between-classes imbalance.
-
-The within-classes imbalanced issue can be addressed by clustering the input space and applying any oversampling algorithm for
-each resulting cluster with an appropriate resampling ratio. `cluster-over-sampling` provides a general interface for
-clustering-based oversampling algorithms. It is compatible with [scikit-learn] and [imbalanced-learn]. SOMO [^1], KMeans-SMOTE
-[^2] and G-SOMO[^3] are specific realizations of this approach and they are provided in `cluster-over-sampling`. Additionally, any
-combination of [scikit-learn] clusterer and [imbalanced-learn] oversampler is supported.
+A general interface for clustering based over-sampling algorithms.
 
 ## Installation
 
