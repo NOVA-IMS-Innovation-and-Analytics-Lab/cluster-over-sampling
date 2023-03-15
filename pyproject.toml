@@ -4,11 +4,11 @@ build-backend = "pdm.pep517.api"
 
 [project]
 name = "cluster-over-sampling"
-description = "Implementation of a general interface for clustering based over-sampling algorithms."
+description = "A general interface for clustering based over-sampling algorithms."
 authors = [{name = "Georgios Douzas", email = "gdouzas@icloud.com"}]
 license = "MIT"
 readme = "README.md"
-requires-python = ">=3.10,<3.12"
+requires-python = ">=3.10, <3.12"
 keywords = ["machine learning", "imbalanced learning", "oversampling"]
 dynamic = ["version"]
 classifiers = [
@@ -19,14 +19,13 @@ classifiers = [
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
     "Topic :: Documentation",
     "Topic :: Software Development",
-    "Topic :: Software Development :: Documentation",
     "Topic :: Utilities",
     "Typing :: Typed",
 ]
 dependencies = [
+    "nptyping>=2.5.0",
     "scipy>=1.7.2",
     "numpy>=1.22",
     "scikit-learn>=1.1.1",
@@ -39,14 +38,14 @@ gsmote = ["geometric-smote>=0.2.0"]
 all = ["som-learn>=0.1.1", "geometric-smote>=0.2.0"]
 
 [project.urls]
-Homepage = "https://cluster-over-sampling.vercel.app/"
-Documentation = "https://cluster-over-sampling.vercel.app/"
-Changelog = "https://cluster-over-sampling.vercel.app/overview/changelog/"
-Repository = "https://github.com/georgedouzas/cluster-over-sampling"
-Issues = "https://github.com/georgedouzas/cluster-over-sampling/issues"
-Discussions = "https://github.com/georgedouzas/cluster-over-sampling/discussions"
+Homepage = "https://georgedouzas.github.io/cluster-over-sampling"
+Documentation = "https://georgedouzas.github.io/cluster-over-sampling"
+Changelog = "https://georgedouzas.github.io/cluster-over-sampling/changelog"
+Repository = "https://github/georgedouzas/cluster-over-sampling"
+Issues = "https://github/georgedouzas/cluster-over-sampling/issues"
+Discussions = "https://github/georgedouzas/cluster-over-sampling/discussions"
 Gitter = "https://gitter.im/cluster-over-sampling/community"
-Funding = "https://github.com/sponsors/georgedouzas"
+Funding = "https://github/sponsors/georgedouzas"
 
 [tool.pdm]
 version = {source = "scm"}
@@ -54,7 +53,7 @@ build = {package-dir = "src", editable-backend = "editables"}
 
 [tool.pdm.scripts]
 clean = {shell = """rm -rf .mypy_cache .pytest_cache tests/.pytest_cache build dist \
-htmlcov pip-wheel-metadata site __pycache__ \
+htmlcov pip-wheel-metadata site __pycache__ .ruff_cache .nox docs/generated \
 && find . -type d -name __pycache__ | xargs rm -rf \
 && find . -name '*.rej'  -delete \
 && find . -name '.coverage*'  -delete"""}
@@ -62,16 +61,16 @@ docs = "nox --error-on-external-run -R -s docs -- {args:serve}"
 formatting = "nox --error-on-external-run -R -s formatting -- {args:all}"
 checks = "nox --error-on-external-run -R -s checks -- {args:all}"
 tests = "nox --error-on-external-run -R -s tests"
-changelog = "nox --error-on-external-run -R -s changelog -- {args:all}"
-release = "nox --error-on-external-run -R -s release"
+changelog = "nox --error-on-external-run -R -s changelog"
+release = "nox --error-on-external-run -R -s release -- {args}"
 
 [tool.pdm.dev-dependencies]
 maintenance = [
     "nox>=2022.8.7",
 ]
 docs = [
-    "mkdocs>=1.3",
-    "mkdocs-coverage>=0.2",
+    "mkdocs>=1.4.2",
+    "mkdocs-coverage>=0.2.6",
     "mkdocs-gen-files>=0.3",
     "mkdocs-literate-nav>=0.4",
     "mkdocs-material>=7.3",
@@ -80,9 +79,8 @@ docs = [
     "mkdocstrings[python]>=0.20",
     "markdown-callouts>=0.2",
     "markdown-exec>=0.5",
-    "toml>=0.10",
-    'pandas>=1.5.0',
-    "Pillow>=9.4.0",
+    "pandas>=1.5.3",
+    "matplotlib>=3.7.1",
 ]
 formatting = [
     "black>=21.10b0",
@@ -94,22 +92,18 @@ checks = [
     "mypy>=0.910",
     "types-markdown>=3.3",
     "types-toml>=0.10",
-    "nptyping>=2.4.1"
 ]
 tests = [
     "pytest>=6.2",
     "pytest-cov>=3.0",
     "pytest-randomly>=3.10",
     "pytest-xdist>=2.4",
-    "nptyping>=2.4.1"
 ]
-chagelog = [
-    "towncrier>=19.2",
-    "click>=8.1.3",
+changelog = [
+    "git-changelog>=1.0.0",
 ]
 release = [
     "twine>=4.0.0",
-    "click>=8.1.3",
 ]
 
 [tool.black]
@@ -162,58 +156,7 @@ equivalent = ["src", "__pypackages__"]
 
 [tool.coverage.report]
 precision = 2
-omit = ["src/*/__init__.py", "src/*/__main__.py", "tests/__init__.py"]
+omit = ["src/*/__init__.py", "tests/__init__.py"]
 
 [tool.coverage.json]
 output = "htmlcov/coverage.json"
-
-[tool.towncrier]
-package_dir = "src"
-package = "clover"
-directory = "news"
-filename = "CHANGELOG.md"
-template = "news/changelog_template.jinja"
-issue_format = "([Issue #{issue}](https://github.com/georgedouzas/cluster-over-sampling/issues/{issue}))"
-start_string = "<!-- release notes start -->"
-title_format = "## [Version {version}](https://github.com/georgedouzas/cluster-over-sampling/releases/tag/{version}) ({project_date})"
-underlines = ["", "", ""]
-
-[[tool.towncrier.type]]
-directory = "build"
-name = "Build system or external dependencies changes"
-showcontent = true
-
-[[tool.towncrier.type]]
-directory = "ci"
-name = "CI configuration files and scripts changes"
-showcontent = true
-
-[[tool.towncrier.type]]
-directory = "docs"
-name = "Documentation improvements"
-showcontent = true
-
-[[tool.towncrier.type]]
-directory = "feat"
-name = "New feature implementation"
-showcontent = true
-
-[[tool.towncrier.type]]
-directory = "fix"
-name = "Bug fix"
-showcontent = true
-
-[[tool.towncrier.type]]
-directory = "perf"
-name = "Performance improvement"
-showcontent = true
-
-[[tool.towncrier.type]]
-directory = "refactor"
-name = "Code refactor"
-showcontent = true
-
-[[tool.towncrier.type]]
-directory = "test"
-name = "Test additions or corrections"
-showcontent = true

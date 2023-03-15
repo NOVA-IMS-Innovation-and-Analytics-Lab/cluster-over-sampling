@@ -1,4 +1,4 @@
-"""Clustering-based over-sampling.
+"""A general interface for clustering based over-sampling algorithms.
 
 [SOMO oversampling algorithm]: <https://www.sciencedirect.com/science/article/abs/pii/S0957417417302324>
 [KMeans-SMOTE oversampling algorithm]: <https://www.sciencedirect.com/science/article/abs/pii/S0020025518304997>
@@ -19,8 +19,11 @@ has two submodules:
     - [`GeometricSOMO`][clover.over_sampling.GeometricSOMO]: [G-SOMO oversampling algorithm].
 """
 
+from __future__ import annotations
 
 from nptyping import Float, Int, NDArray, Shape
+
+__all__: list[str] = []
 
 InputData = NDArray[Shape['*, *'], Float]
 Targets = NDArray[Shape['*'], Float]
