@@ -6,12 +6,21 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 <!-- insertion marker -->
+## [0.4.2](https://github.com/georgedouzas/cluster-over-sampling/releases/tag/0.4.2) - 2023-03-16
+
+<small>[Compare with 0.4.1](https://github.com/georgedouzas/cluster-over-sampling/compare/0.4.1...0.4.2)</small>
+
+### Chore
+
+- Use updated template ([eacc094](https://github.com/georgedouzas/cluster-over-sampling/commit/eacc094f9a50d58e9eef1cc4293634c0aad7c91d) by georgedouzas).
+
 ## [0.4.1](https://github.com/georgedouzas/cluster-over-sampling/releases/tag/0.4.1) - 2023-03-16
 
 <small>[Compare with 0.4.0](https://github.com/georgedouzas/cluster-over-sampling/compare/0.4.0...0.4.1)</small>
 
 ### Chore
 
+- Release 0.4.1 ([48a35ff](https://github.com/georgedouzas/cluster-over-sampling/commit/48a35ffde687ee63ca5f3e67ca3af36de1f74f40) by georgedouzas).
 - Restructure project using copier template ([9fe0621](https://github.com/georgedouzas/cluster-over-sampling/commit/9fe062167c6f50dc08bb398e3025a8cfd13434f9) by georgedouzas).
 
 ## [0.4.0](https://github.com/georgedouzas/cluster-over-sampling/releases/tag/0.4.0) - 2023-02-16
