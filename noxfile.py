@@ -136,7 +136,7 @@ def release(session: nox.Session) -> None:
     session.run('git', 'add', 'pyproject.toml', 'CHANGELOG.md', external=True)
     session.run('git', 'commit', '-m', f'chore: Release {session.posargs[0]}', external=True)
     try:
-        session.run('git', 'tag', '-a', session.posargs[0], external=True)
+        session.run('git', 'tag', session.posargs[0], external=True)
         session.run('git', 'push', '--tags', external=True)
     finally:
         session.run('pdm', 'build', external=True)
