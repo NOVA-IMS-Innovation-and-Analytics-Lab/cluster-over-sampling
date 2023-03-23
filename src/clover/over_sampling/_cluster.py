@@ -524,7 +524,7 @@ class ClusterOverSampler(BaseOverSampler):
 
             # Display warning
             else:
-                warnings.warn(msg, FitFailedWarning)
+                warnings.warn(msg, FitFailedWarning, stacklevel=1)
 
         return self
 
