@@ -91,9 +91,8 @@ def compare_f1_scores(X_train, X_test, y_train, y_test, clf, oversampler, cluste
 # Generate imbalanced data
 # ------------------------
 #
-#
 # We are generating a highly imbalanced multi-class data set, using
-# ``make_classification`` from scikit-learn.
+# `make_classification` from scikit-learn.
 
 X, y = generate_imbalanced_data()
 _, ax = plt.subplots(1, 1, figsize=(15, 7))
