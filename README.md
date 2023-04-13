@@ -1,6 +1,5 @@
 [scikit-learn]: <http://scikit-learn.org/stable/>
 [imbalanced-learn]: <http://imbalanced-learn.org/stable/>
-[SMOTE]: <https://arxiv.org/pdf/1106.1813.pdf>
 [SOMO]: <https://www.sciencedirect.com/science/article/abs/pii/S0957417417302324>
 [KMeans-SMOTE]: <https://www.sciencedirect.com/science/article/abs/pii/S0020025518304997>
 [G-SOMO]: <https://www.sciencedirect.com/science/article/abs/pii/S095741742100662X>
@@ -43,10 +42,20 @@ A general interface for clustering based over-sampling algorithms.
 
 ## Installation
 
-`cluster-over-sampling` is currently available on the PyPi's repository, and you can install it via `pip`:
+For user installation, `cluster-over-sampling` is currently available on the PyPi's repository, and you can
+install it via `pip`:
 
 ```bash
 pip install cluster-over-sampling
+```
+
+Development installation requires to clone the repository and then use [PDM](https://github.com/pdm-project/pdm) to install the
+project as well as the main and development dependencies:
+
+```bash
+git clone https://github.com/georgedouzas/cluster-over-sampling.git
+cd cluster-over-sampling
+pdm install
 ```
 
 SOM clusterer requires optional dependencies:
@@ -55,7 +64,7 @@ SOM clusterer requires optional dependencies:
 pip install cluster-over-sampling[som]
 ```
 
-Similarly for Geometric SMOTE oversampler:
+Similarly, for Geometric SMOTE oversampler:
 
 ```bash
 pip install cluster-over-sampling[gsmote]
@@ -91,9 +100,9 @@ X_resampled, y_resampled = clustering_based_oversampler.fit_resample(X, y)
 
 If you use `cluster-over-sampling` in a scientific publication, we would appreciate citations to any of the following papers:
 
-[^1]: [G. Douzas, F. Bacao, "Self-Organizing Map Oversampling (SOMO) for imbalanced data set learning", Expert Systems with
+- [G. Douzas, F. Bacao, "Self-Organizing Map Oversampling (SOMO) for imbalanced data set learning", Expert Systems with
     Applications, vol. 82, pp. 40-52, 2017.][SOMO]
-[^2]: [G. Douzas, F. Bacao, F. Last, "Improving imbalanced learning through a heuristic oversampling method based on k-means and
+- [G. Douzas, F. Bacao, F. Last, "Improving imbalanced learning through a heuristic oversampling method based on k-means and
     SMOTE", Information Sciences, vol. 465, pp. 1-20, 2018.][KMeans-SMOTE]
-[^3]: [G. Douzas, F. Bacao, F. Last, "G-SOMO: An oversampling approach based on self-organized maps and geometric SMOTE", Expert
+- [G. Douzas, F. Bacao, F. Last, "G-SOMO: An oversampling approach based on self-organized maps and geometric SMOTE", Expert
     Systems with Applications, vol. 183,115230, 2021.][G-SOMO]

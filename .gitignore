@@ -13,6 +13,7 @@ site/
 docs/generated/
 pdm.lock
 .pdm.toml
+.pdm-python
 __pypackages__/
 .venv/
 .nox

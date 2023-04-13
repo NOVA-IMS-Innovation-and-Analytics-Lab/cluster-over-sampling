@@ -23,6 +23,13 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
+    - name: Install Python versions
+      uses: actions/setup-python@v4
+      with:
+        python-version: |
+            3.10
+            3.11
+            
     - name: Set up PDM
       uses: pdm-project/setup-pdm@v3
       with:
@@ -30,10 +37,16 @@ jobs:
         cache-dependency-path: pyproject.toml
 
     - name: Install dependencies
-      run: pdm install --no-editable -G maintenance -G checks
+      run: pdm install --no-editable -dG maintenance -dG checks
 
-    - name: Check the code quality, type annotations and vulnerabilities in dependencies
-      run: pdm checks
+    - name: Check code quality
+      run: pdm checks quality
+
+    - name: Check type annotations
+      run: pdm checks types
+
+    - name: Check vulnerabilities in dependencies
+      run: pdm checks dependencies
 
   tests:
 
