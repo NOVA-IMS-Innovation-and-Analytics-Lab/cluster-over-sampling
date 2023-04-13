@@ -5,7 +5,7 @@ from pathlib import Path
 
 import nox
 
-os.environ.update({'PDM_IGNORE_SAVED_PYTHON': '1', 'PDM_USE_VENV': '1'})
+os.environ.update({'PDM_IGNORE_SAVED_PYTHON': '1'})
 
 PYTHON_VERSIONS = ['3.10', '3.11']
 FILES = ['src', 'tests', 'docs', 'noxfile.py']
@@ -28,7 +28,7 @@ def check_cli(session: nox.Session, args: list[str]) -> None:
 
 @nox.session
 def docs(session: nox.Session) -> None:
-    """Build or serve.
+    """Build or serve the documentation.
 
     Arguments:
         session: The nox session.
@@ -72,12 +72,19 @@ def checks(session: nox.Session, file: str) -> None:
         session.run('mypy', file)
     if session.posargs[0] in ['dependencies', 'all']:
         requirements_path = (Path(session.create_tmp()) / 'requirements.txt').as_posix()
-        requirements_types = zip(
-            FILES,
-            [['--prod'], ['-dG', 'tests'], ['-dG', 'docs'], ['-dG', 'maintenance']],
-            strict=True,
-        )
-        args = ['pdm', 'export', '-f', 'requirements', '--without-hashes', '-o', requirements_path]
+        args_groups = [['--prod']] + [['-dG', group] for group in ['tests', 'docs', 'maintenance']]
+        requirements_types = zip(FILES, args_groups, strict=True)
+        args = [
+            'pdm',
+            'export',
+            '-f',
+            'requirements',
+            '--without-hashes',
+            '--no-default',
+            '--pyproject',
+            '-o',
+            requirements_path,
+        ]
         session.run(*(args + dict(requirements_types)[file]), external=True)
         session.run('safety', 'check', '-r', requirements_path)
 
@@ -102,7 +109,7 @@ def tests(session: nox.Session) -> None:
 
 @nox.session
 def changelog(session: nox.Session) -> None:
-    """Add news fragment or build changelog.
+    """Build the changelog.
 
     Arguments:
         session: The nox session.
@@ -137,6 +144,7 @@ def release(session: nox.Session) -> None:
     session.run('git', 'commit', '-m', f'chore: Release {session.posargs[0]}', external=True)
     try:
         session.run('git', 'tag', session.posargs[0], external=True)
+        session.run('git', 'push', external=True)
         session.run('git', 'push', '--tags', external=True)
     finally:
         session.run('pdm', 'build', external=True)
