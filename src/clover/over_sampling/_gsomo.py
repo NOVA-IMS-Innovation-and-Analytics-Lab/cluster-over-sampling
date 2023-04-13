@@ -221,7 +221,6 @@ class GeometricSOMO(ClusterOverSampler):
 
     def _check_estimators(self: GeometricSOMO, X: InputData, y: Targets) -> GeometricSOMO:
         """Check various estimators."""
-
         # Check oversampler
         self.oversampler_ = GeometricSMOTE(
             sampling_strategy=self.sampling_strategy,

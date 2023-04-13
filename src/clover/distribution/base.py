@@ -82,7 +82,7 @@ class BaseDistributor(BaseEstimator):
                 )
                 raise ValueError(msg)
             proportions[class_label1] += proportion
-        if not all([np.isclose(val, 0) or np.isclose(val, 1) for val in proportions.values()]):
+        if not all(np.isclose(val, 0) or np.isclose(val, 1) for val in proportions.values()):
             msg = (
                 'Intra-distribution and inter-distribution sum of proportions for each '
                 f'class label should be either equal to 0 or 1. Got {proportions} instead.'

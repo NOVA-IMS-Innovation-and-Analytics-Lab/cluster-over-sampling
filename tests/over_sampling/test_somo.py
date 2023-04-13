@@ -35,7 +35,6 @@ def test_fit(k_neighbors, imbalance_ratio_threshold, distances_exponent):
 
     Multiple cases.
     """
-
     # Fit oversampler
     somo = clone(SM).fit(X, y)
     y_count = Counter(y)
@@ -67,7 +66,6 @@ def test_fit_default():
 
     Default case.
     """
-
     # Fit oversampler
     somo = clone(SM).fit(X, y)
 
@@ -86,7 +84,6 @@ def test_fit_number_of_clusters(n_clusters):
 
     Number of clusters case.
     """
-
     # Fit oversampler
     somo = clone(SM).set_params(som_estimator=n_clusters).fit(X, y)
 
@@ -102,7 +99,6 @@ def test_fit_proportion_of_samples(proportion):
 
     Proportion of samples case.
     """
-
     # Fit oversampler
     somo = clone(SM).set_params(som_estimator=proportion).fit(X, y)
 
@@ -117,7 +113,6 @@ def test_fit_som_estimator():
 
     Clusterer case.
     """
-
     # Fit oversampler
     somo = clone(SM).set_params(som_estimator=SOM()).fit(X, y)
 
@@ -165,7 +160,6 @@ def test_fit_resample():
 
     Default case.
     """
-
     # Fit oversampler
     somo = clone(SM)
     _, y_res = somo.fit_resample(X, y)

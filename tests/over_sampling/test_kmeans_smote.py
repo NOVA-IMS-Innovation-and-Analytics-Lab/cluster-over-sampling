@@ -32,7 +32,6 @@ def test_fit(k_neighbors, imbalance_ratio_threshold, distances_exponent):
 
     Multiple cases.
     """
-
     # Fit oversampler
     kmeans_smote = clone(KMEANS_SMOTE).fit(X, y)
     y_count = Counter(y)
@@ -62,7 +61,6 @@ def test_fit_default():
 
     Default case.
     """
-
     # Fit oversampler
     kmeans_smote = clone(KMEANS_SMOTE).fit(X, y)
 
@@ -77,7 +75,6 @@ def test_fit_number_of_clusters(n_clusters):
 
     Number of clusters case.
     """
-
     # Fit oversampler
     kmeans_smote = clone(KMEANS_SMOTE).set_params(kmeans_estimator=n_clusters).fit(X, y)
 
@@ -92,7 +89,6 @@ def test_fit_proportion_of_samples(proportion):
 
     Proportion of samples case.
     """
-
     # Fit oversampler
     kmeans_smote = clone(KMEANS_SMOTE).set_params(kmeans_estimator=proportion).fit(X, y)
 
@@ -107,7 +103,6 @@ def test_fit_kmeans_estimator(kmeans_estimator):
 
     Clusterer case.
     """
-
     # Fit oversampler
     kmeans_smote = clone(KMEANS_SMOTE).set_params(kmeans_estimator=kmeans_estimator).fit(X, y)
 
@@ -151,7 +146,6 @@ def test_fit_resample():
 
     Default case.
     """
-
     # Fit oversampler
     kmeans_smote = clone(KMEANS_SMOTE)
     _, y_res = kmeans_smote.fit_resample(X, y)

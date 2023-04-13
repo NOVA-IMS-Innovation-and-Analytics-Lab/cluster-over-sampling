@@ -183,7 +183,6 @@ class KMeansSMOTE(ClusterOverSampler):
 
     def _check_estimators(self: KMeansSMOTE, X: InputData, y: Targets) -> KMeansSMOTE:
         """Check various estimators."""
-
         # Check oversampler
         self.oversampler_ = SMOTE(
             sampling_strategy=self.sampling_strategy,
@@ -208,7 +207,7 @@ class KMeansSMOTE(ClusterOverSampler):
             )
             n_clusters = round((X.shape[0] - 1) * self.kmeans_estimator + 1)
             self.clusterer_ = MiniBatchKMeans(n_clusters=n_clusters, random_state=self.random_state)
-        elif isinstance(self.kmeans_estimator, (KMeans, MiniBatchKMeans)):
+        elif isinstance(self.kmeans_estimator, KMeans | MiniBatchKMeans):
             self.clusterer_ = clone(self.kmeans_estimator)
         else:
             msg = (
