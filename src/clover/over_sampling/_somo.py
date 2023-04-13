@@ -170,7 +170,6 @@ class SOMO(ClusterOverSampler):
 
     def _check_estimators(self: SOMO, X: InputData, y: Targets) -> SOMO:
         """Check various estimators."""
-
         # Import SOM
         try:
             from somlearn import SOM

@@ -64,7 +64,6 @@ def clone_modify(oversampler: BaseOverSampler, class_label: int, y_in_cluster: T
     Returns:
         A cloned oversampler with modified number of nearest neighbors.
     """
-
     # Clone oversampler
     oversampler = clone(oversampler)
 

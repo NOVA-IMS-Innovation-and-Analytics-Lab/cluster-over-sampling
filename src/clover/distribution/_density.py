@@ -200,7 +200,6 @@ class DensityDistributor(BaseDistributor):
 
     def _identify_filtered_clusters(self: DensityDistributor, y: Targets) -> DensityDistributor:
         """Identify the filtered clusters."""
-
         # Generate multi-label
         multi_labels = list(zip(self.labels_, y, strict=True))
 
@@ -224,7 +223,6 @@ class DensityDistributor(BaseDistributor):
 
     def _calculate_clusters_density(self: DensityDistributor, X: InputData, y: Targets) -> DensityDistributor:
         """Calculate the density of the filtered clusters."""
-
         self.clusters_density_ = {}
 
         # Calculate density
