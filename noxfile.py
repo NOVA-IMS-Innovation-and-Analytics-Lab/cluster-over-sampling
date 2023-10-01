@@ -89,13 +89,14 @@ def checks(session: nox.Session, file: str) -> None:
         session.run('safety', 'check', '-r', requirements_path)
 
 
-@nox.session(python=PYTHON_VERSIONS)
+@nox.session(python=PYTHON_VERSIONS, venv_backend='conda')
 def tests(session: nox.Session) -> None:
     """Run tests and coverage.
 
     Arguments:
         session: The nox session.
     """
+    session.run('conda', 'install', '-y', '-c', 'conda-forge', 'somoclu')
     session.run('pdm', 'install', '-dG', 'tests', external=True)
     env = {'COVERAGE_FILE': f'.coverage.{session.python}'}
     if session.posargs:

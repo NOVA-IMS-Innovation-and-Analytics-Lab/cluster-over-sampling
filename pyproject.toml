@@ -25,17 +25,16 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
-    "nptyping>=2.5.0",
     "scipy>=1.7.2",
     "numpy>=1.22",
     "scikit-learn>=1.1.1",
     "imbalanced-learn>=0.9.0",
+    "geometric-smote>=0.2.0",
+    "typing-extensions>=4.8.0",
 ]
 
 [project.optional-dependencies]
-som = ["som-learn>=0.1.1"]
-gsmote = ["geometric-smote>=0.2.0"]
-all = ["som-learn>=0.1.1", "geometric-smote>=0.2.0"]
+som = ["somoclu>=1.7.6"]
 
 [project.urls]
 Homepage = "https://georgedouzas.github.io/cluster-over-sampling"
@@ -87,6 +86,7 @@ formatting = [
     "docformatter>=1.5.1",
 ]
 checks = [
+    "numpy>=1.22",
     "ruff>=0.0.237",
     "safety>=2",
     "mypy>=0.910",
@@ -136,6 +136,7 @@ target-version = "py310"
 convention = "google"
 
 [tool.mypy]
+plugins = "numpy.typing.mypy_plugin"
 ignore_missing_imports = true
 exclude = ["tests/fixtures/", "docs/examples/", "docs/generated/"]
 warn_unused_ignores = true
