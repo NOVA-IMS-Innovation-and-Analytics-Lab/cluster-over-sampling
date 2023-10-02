@@ -29,7 +29,12 @@ def generate_labels_mapping(grid_labels: list[tuple[int, int]]) -> dict[tuple[in
 
 
 def extract_topological_neighbors(
-    col: int, row: int, gridtype: str, n_rows: int, n_columns: int, bmus: list[list[int]],
+    col: int,
+    row: int,
+    gridtype: str,
+    n_rows: int,
+    n_columns: int,
+    bmus: list[list[int]],
 ) -> list[tuple[int, int]]:
     """Return the topological neighbors of a neuron."""
 
@@ -158,7 +163,11 @@ class SOM(BaseEstimator, ClusterMixin):
             product(
                 [tuple(grid_label)],
                 extract_topological_neighbors(
-                    *grid_label, self.gridtype, self.n_rows, self.n_columns, self.algorithm_.bmus.tolist(),
+                    *grid_label,
+                    self.gridtype,
+                    self.n_rows,
+                    self.n_columns,
+                    self.algorithm_.bmus.tolist(),
                 ),
             )
             for grid_label in grid_labels_unique
