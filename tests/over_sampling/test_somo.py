@@ -10,8 +10,8 @@ from sklearn.base import clone
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.datasets import make_classification
 
-SOMO = pytest.importorskip('clover.over_sampling.SOMO')
-SOM = pytest.importorskip('somlearn.SOM')
+SOMO = pytest.importorskip('clover.over_sampling').SOMO
+SOM = pytest.importorskip('clover.clusterer').SOM
 
 RANDOM_STATE = 2
 X, y = make_classification(
@@ -23,20 +23,21 @@ X, y = make_classification(
     weights=[0.25, 0.45, 0.3],
     n_informative=5,
 )
-SM = SOMO(random_state=RANDOM_STATE)
+SOMO_OVERSAMPLER = SOMO(random_state=RANDOM_STATE)
 
 
 @pytest.mark.parametrize(
-    ("k_neighbors", "imbalance_ratio_threshold", "distances_exponent"),
-    [(3, 2.0, 'auto'), (5, 1.5, 8), (8, 'auto', 10)],
+    ('k_neighbors', 'distribution_ratio'),
+    [(3, 0.2), (5, 0.5), (8, 0.6)],
 )
-def test_fit(k_neighbors, imbalance_ratio_threshold, distances_exponent):
+def test_fit(k_neighbors, distribution_ratio):
     """Test fit method.
 
     Multiple cases.
     """
     # Fit oversampler
-    somo = clone(SM).fit(X, y)
+    params = {'k_neighbors': k_neighbors, 'distribution_ratio': distribution_ratio}
+    somo = clone(SOMO_OVERSAMPLER).set_params(**params).fit(X, y)
     y_count = Counter(y)
 
     # Assert random state
@@ -44,17 +45,18 @@ def test_fit(k_neighbors, imbalance_ratio_threshold, distances_exponent):
 
     # Assert oversampler
     assert isinstance(somo.oversampler_, SMOTE)
-    assert somo.oversampler_.k_neighbors == somo.k_neighbors
+    assert somo.oversampler_.k_neighbors == somo.k_neighbors == k_neighbors
 
     # Assert clusterer
     assert isinstance(somo.clusterer_, SOM)
 
     # Assert distributor
     filtering_threshold = 1.0
+    distances_exponent = 2
     assert isinstance(somo.distributor_, DensityDistributor)
     assert somo.distributor_.filtering_threshold == filtering_threshold
     assert somo.distributor_.distances_exponent == distances_exponent
-    assert somo.distributor_.distribution_ratio == somo.distribution_ratio
+    assert somo.distributor_.distribution_ratio == somo.distribution_ratio == distribution_ratio
 
     # Assert sampling strategy
     assert somo.oversampler_.sampling_strategy == somo.sampling_strategy
@@ -62,12 +64,12 @@ def test_fit(k_neighbors, imbalance_ratio_threshold, distances_exponent):
 
 
 def test_fit_default():
-    """Test clusterer of fit method.
+    """Test fit method.
 
     Default case.
     """
     # Fit oversampler
-    somo = clone(SM).fit(X, y)
+    somo = clone(SOMO_OVERSAMPLER).fit(X, y)
 
     # Create SOM instance with default parameters
     som = SOM()
@@ -80,12 +82,12 @@ def test_fit_default():
 
 @pytest.mark.parametrize('n_clusters', [5, 6, 12])
 def test_fit_number_of_clusters(n_clusters):
-    """Test clusterer of fit method.
+    """Test fit method.
 
     Number of clusters case.
     """
     # Fit oversampler
-    somo = clone(SM).set_params(som_estimator=n_clusters).fit(X, y)
+    somo = clone(SOMO_OVERSAMPLER).set_params(som_estimator=n_clusters).fit(X, y)
 
     # Assert clusterer
     assert isinstance(somo.clusterer_, SOM)
@@ -95,12 +97,12 @@ def test_fit_number_of_clusters(n_clusters):
 
 @pytest.mark.parametrize('proportion', [0.0, 0.5, 1.0])
 def test_fit_proportion_of_samples(proportion):
-    """Test clusterer of fit method.
+    """Test fit method.
 
     Proportion of samples case.
     """
     # Fit oversampler
-    somo = clone(SM).set_params(som_estimator=proportion).fit(X, y)
+    somo = clone(SOMO_OVERSAMPLER).set_params(som_estimator=proportion).fit(X, y)
 
     # Assert clusterer
     assert isinstance(somo.clusterer_, SOM)
@@ -109,12 +111,12 @@ def test_fit_proportion_of_samples(proportion):
 
 
 def test_fit_som_estimator():
-    """Test clusterer of fit method.
+    """Test fit method.
 
-    Clusterer case.
+    SOM estimator case.
     """
     # Fit oversampler
-    somo = clone(SM).set_params(som_estimator=SOM()).fit(X, y)
+    somo = clone(SOMO_OVERSAMPLER).set_params(som_estimator=SOM()).fit(X, y)
 
     # Define som estimator
     som = SOM()
@@ -132,7 +134,7 @@ def test_raise_value_error_fit_integer(som_estimator):
     Integer values as estimators error case.
     """
     with pytest.raises(ValueError, match=f'som_estimator == {som_estimator}, must be >= 1.'):
-        clone(SM).set_params(som_estimator=som_estimator).fit(X, y)
+        clone(SOMO_OVERSAMPLER).set_params(som_estimator=som_estimator).fit(X, y)
 
 
 @pytest.mark.parametrize('som_estimator', [-1.5, 2.0])
@@ -141,18 +143,18 @@ def test_raise_value_error_fit_float(som_estimator):
 
     Float values as estimators error case.
     """
-    with pytest.raises(ValueError, match=f'kmeans_estimator == {som_estimator}, must be'):
-        clone(SM).set_params(som_estimator=som_estimator).fit(X, y)
+    with pytest.raises(ValueError, match=f'som_estimator == {som_estimator}, must be'):
+        clone(SOMO_OVERSAMPLER).set_params(som_estimator=som_estimator).fit(X, y)
 
 
-@pytest.mark.parametrize('som_estimator', [AgglomerativeClustering, [3, 5]])
+@pytest.mark.parametrize('som_estimator', [AgglomerativeClustering(), [3, 5]])
 def test_raise_type_error_fit(som_estimator):
     """Test fit method.
 
-    Not KMeans clusterer error case.
+    Not SOM clusterer error case.
     """
     with pytest.raises(TypeError, match='Parameter `som_estimator` should be'):
-        clone(SM).set_params(som_estimator=som_estimator).fit(X, y)
+        clone(SOMO_OVERSAMPLER).set_params(som_estimator=som_estimator).fit(X, y)
 
 
 def test_fit_resample():
@@ -161,7 +163,7 @@ def test_fit_resample():
     Default case.
     """
     # Fit oversampler
-    somo = clone(SM)
+    somo = clone(SOMO_OVERSAMPLER)
     _, y_res = somo.fit_resample(X, y)
 
     # Assert clusterer is fitted
