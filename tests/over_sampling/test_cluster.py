@@ -109,13 +109,9 @@ def test_clone_modify_neighbors(oversampler):
     if hasattr(cloned_oversampler, 'k_neighbors'):
         assert cloned_oversampler.k_neighbors == n_minority_samples - 1
     if hasattr(cloned_oversampler, 'm_neighbors'):
-        assert (cloned_oversampler.m_neighbors == y_in_cluster.size - 1) or (
-            cloned_oversampler.m_neighbors == 'deprecated'
-        )
+        assert cloned_oversampler.m_neighbors in (y_in_cluster.size - 1, 'deprecated')
     if hasattr(cloned_oversampler, 'n_neighbors'):
-        assert (cloned_oversampler.n_neighbors == n_minority_samples - 1) or (
-            cloned_oversampler.n_neighbors == 'deprecated'
-        )
+        assert cloned_oversampler.n_neighbors in (n_minority_samples - 1, 'deprecated')
 
 
 def test_extract_intra_data():
