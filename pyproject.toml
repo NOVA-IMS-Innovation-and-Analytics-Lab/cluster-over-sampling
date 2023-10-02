@@ -40,11 +40,11 @@ som = ["somoclu>=1.7.6"]
 Homepage = "https://georgedouzas.github.io/cluster-over-sampling"
 Documentation = "https://georgedouzas.github.io/cluster-over-sampling"
 Changelog = "https://georgedouzas.github.io/cluster-over-sampling/changelog"
-Repository = "https://github/georgedouzas/cluster-over-sampling"
-Issues = "https://github/georgedouzas/cluster-over-sampling/issues"
-Discussions = "https://github/georgedouzas/cluster-over-sampling/discussions"
+Repository = "https://github.com/georgedouzas/cluster-over-sampling"
+Issues = "https://github.com/georgedouzas/cluster-over-sampling/issues"
+Discussions = "https://github.com/georgedouzas/cluster-over-sampling/discussions"
 Gitter = "https://gitter.im/cluster-over-sampling/community"
-Funding = "https://github/sponsors/georgedouzas"
+Funding = "https://github.com/sponsors/georgedouzas"
 
 [tool.pdm]
 version = {source = "scm"}
@@ -61,7 +61,7 @@ formatting = "nox --error-on-external-run -R -s formatting -- {args:all}"
 checks = "nox --error-on-external-run -R -s checks -- {args:all}"
 tests = "nox --error-on-external-run -R -s tests"
 changelog = "nox --error-on-external-run -R -s changelog"
-release = "nox --error-on-external-run -R -s release -- {args}"
+release = "nox --error-on-external-run -R -s release"
 
 [tool.pdm.dev-dependencies]
 maintenance = [

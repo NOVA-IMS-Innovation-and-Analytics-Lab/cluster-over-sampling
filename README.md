@@ -21,9 +21,9 @@
 [discussions]: <https://github.com/georgedouzas/cluster-over-sampling/discussions>
 [discussions badge]: <https://img.shields.io/github/discussions/georgedouzas/cluster-over-sampling>
 [ci]: <https://github.com/georgedouzas/cluster-over-sampling/actions?query=workflow>
-[ci badge]: <https://github.com/georgedouzas/cluster-over-sampling/actions/workflows/ci.yml/badge.svg>
+[ci badge]: <https://github.com/georgedouzas/cluster-over-sampling/actions/workflows/ci.yml/badge.svg?branch=main>
 [doc]: <https://github.com/georgedouzas/cluster-over-sampling/actions?query=workflow>
-[doc badge]: <https://github.com/georgedouzas/cluster-over-sampling/actions/workflows/doc.yml/badge.svg?branch=master>
+[doc badge]: <https://github.com/georgedouzas/cluster-over-sampling/actions/workflows/doc.yml/badge.svg?branch=main>
 
 # cluster-over-sampling
 
