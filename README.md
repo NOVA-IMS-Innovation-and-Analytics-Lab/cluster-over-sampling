@@ -64,18 +64,6 @@ SOM clusterer requires optional dependencies:
 pip install cluster-over-sampling[som]
 ```
 
-Similarly, for Geometric SMOTE oversampler:
-
-```bash
-pip install cluster-over-sampling[gsmote]
-```
-
-You can also install both of them:
-
-```bash
-pip install cluster-over-sampling[all]
-```
-
 ## Usage
 
 All the classes included in `cluster-over-sampling` follow the [imbalanced-learn] API using the functionality of the base
