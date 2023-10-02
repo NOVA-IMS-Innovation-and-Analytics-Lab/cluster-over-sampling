@@ -21,6 +21,7 @@ from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import label_binarize
 from sklearn.utils import check_random_state
 from sklearn.utils.multiclass import check_classification_targets
+from typing_extensions import Self
 
 from .. import InputData, InterDistribution, IntraDistribution, Labels, Targets
 from ..distribution import DensityDistributor
@@ -237,7 +238,7 @@ def generate_in_cluster(
     """
 
     # Create oversampler for specific cluster and class
-    class_label = list(cluster_sampling_strategy.keys())[0]
+    class_label = next(iter(cluster_sampling_strategy.keys()))
     oversampler = clone_modify(oversampler, class_label, y_in_cluster)
     oversampler.sampling_strategy_ = cluster_sampling_strategy
 
@@ -269,7 +270,7 @@ class ClusterOverSampler(BaseOverSampler):
             Clusterer to apply to input space before oversampling.
 
             - When `None`, it corresponds to a clusterer that assigns
-            a single cluster to all the samples i.e. no clustering is applied.
+            a single cluster to all the samples equivalent to no clustering.
 
             - When clusterer is given, it applies clustering to the input space. Then
             oversampling is applied inside each cluster and between clusters.
@@ -297,7 +298,7 @@ class ClusterOverSampler(BaseOverSampler):
 
             - If `int`, it is the seed used by the random number
             generator.
-            - If `RandomState` instance, it is the random number
+            - If `np.random.RandomState` instance, it is the random number
             generator.
             - If `None`, the random number generator is the `RandomState`
             instance used by `np.random`.
@@ -310,29 +311,29 @@ class ClusterOverSampler(BaseOverSampler):
             - If `-1` means using all processors.
 
     Attributes:
-        oversampler_ (BaseOverSampler):
+        oversampler_ (imblearn.over_sampling.base.BaseOverSampler):
             A fitted clone of the `oversampler` parameter.
 
-        clusterer_ (ClusterMixin):
+        clusterer_ (sklearn.base.ClusterMixin):
             A fitted clone of the `clusterer` parameter or `None` when a
             clusterer is not given.
 
-        distributor_ (BaseDistributor):
+        distributor_ (clover.distribution.base.BaseDistributor):
             A fitted clone of the `distributor` parameter or a fitted instance of
-            the `BaseDistributor` when a distributor is not given.
+            the `DensityDistributor` when a distributor is not given.
 
         labels_ (Labels):
-            Labels of each sample.
+            Cluster labels of each sample.
 
         neighbors_ (Neighbors):
             An array that contains all neighboring pairs with each row being
             a unique neighboring pair. It is `None` when the clusterer does not
             support this attribute.
 
-        random_state_ (numpy.random.RandomState):
-            An instance of `RandomState` class.
+        random_state_ (np.random.RandomState):
+            An instance of `np.random.RandomState` class.
 
-        sampling_strategy_ (Dict[int, int]): dict
+        sampling_strategy_ (dict[int, int]):
             Actual sampling strategy.
 
     Examples:
@@ -346,14 +347,14 @@ class ClusterOverSampler(BaseOverSampler):
         Original dataset shape Counter({{0: 90, 1: 10}})
         >>> cluster_oversampler = ClusterOverSampler(
         ... oversampler=SMOTE(random_state=5),
-        ... clusterer=KMeans(random_state=10))
+        ... clusterer=KMeans(random_state=10, n_init='auto'))
         >>> X_res, y_res = cluster_oversampler.fit_resample(X, y)
         >>> print('Resampled dataset shape %s' % Counter(y_res))
         Resampled dataset shape Counter({{0: 90, 1: 90}})
     """
 
     def __init__(
-        self: ClusterOverSampler,
+        self: Self,
         oversampler: BaseOverSampler,
         clusterer: ClusterMixin | None = None,
         distributor: BaseDistributor | None = None,
@@ -368,7 +369,7 @@ class ClusterOverSampler(BaseOverSampler):
         self.random_state = random_state
         self.n_jobs = n_jobs
 
-    def fit(self: ClusterOverSampler, X: InputData, y: Targets) -> ClusterOverSampler:
+    def fit(self: Self, X: InputData, y: Targets) -> Self:
         """Check inputs and statistics of the sampler.
 
         You should use `fit_resample` to generate the synthetic data.
@@ -388,7 +389,7 @@ class ClusterOverSampler(BaseOverSampler):
         return self
 
     def fit_resample(
-        self: ClusterOverSampler,
+        self: Self,
         X: InputData,
         y: Targets,
         **fit_params: dict[str, str],
@@ -423,7 +424,7 @@ class ClusterOverSampler(BaseOverSampler):
         return (X_, y_)
 
     def _cluster_sample(
-        self: ClusterOverSampler,
+        self: Self,
         clusters_data: list[tuple[dict[int, int], InputData, Targets]],
         X: InputData,
         y: Targets,
@@ -436,7 +437,7 @@ class ClusterOverSampler(BaseOverSampler):
             return X, y
         return None
 
-    def _intra_sample(self: ClusterOverSampler, X: InputData, y: Targets) -> tuple[InputData, Targets] | None:
+    def _intra_sample(self: Self, X: InputData, y: Targets) -> tuple[InputData, Targets] | None:
         clusters_data = extract_intra_data(
             X,
             y,
@@ -446,7 +447,7 @@ class ClusterOverSampler(BaseOverSampler):
         )
         return self._cluster_sample(clusters_data, X, y)
 
-    def _inter_sample(self: ClusterOverSampler, X: InputData, y: Targets) -> tuple[InputData, Targets] | None:
+    def _inter_sample(self: Self, X: InputData, y: Targets) -> tuple[InputData, Targets] | None:
         clusters_data = extract_inter_data(
             X,
             y,
@@ -457,7 +458,7 @@ class ClusterOverSampler(BaseOverSampler):
         )
         return self._cluster_sample(clusters_data, X, y)
 
-    def _check_estimators(self: ClusterOverSampler, X: InputData, y: Targets) -> ClusterOverSampler:
+    def _check_estimators(self: Self, X: InputData, y: Targets) -> Self:
         # Check transformer and oversampler
         if isinstance(self.oversampler, Pipeline):
             if self.oversampler.steps[:-1]:
@@ -481,7 +482,7 @@ class ClusterOverSampler(BaseOverSampler):
             self.distributor_ = DensityDistributor() if self.distributor is None else clone(self.distributor)
         return self
 
-    def _check_sampling_strategy(self: ClusterOverSampler, y: Targets) -> ClusterOverSampler:
+    def _check_sampling_strategy(self: Self, y: Targets) -> Self:
         self.sampling_strategy_ = check_sampling_strategy(
             self.oversampler_.sampling_strategy,
             y,
@@ -489,7 +490,7 @@ class ClusterOverSampler(BaseOverSampler):
         )
         return self
 
-    def _check(self: ClusterOverSampler, X: InputData, y: Targets) -> ClusterOverSampler:
+    def _check(self: Self, X: InputData, y: Targets) -> Self:
         # Check random state
         self.random_state_ = check_random_state(self.random_state)
 
@@ -501,7 +502,7 @@ class ClusterOverSampler(BaseOverSampler):
 
         return self
 
-    def _fit(self: ClusterOverSampler, X: InputData, y: Targets, **fit_params: dict[str, str]) -> ClusterOverSampler:
+    def _fit(self: Self, X: InputData, y: Targets, **fit_params: dict[str, str]) -> Self:
         # Fit clusterer
         if self.clusterer_ is not None:
             self.clusterer_.fit(X, y, **fit_params)
@@ -528,7 +529,7 @@ class ClusterOverSampler(BaseOverSampler):
         return self
 
     def _fit_resample(
-        self: ClusterOverSampler,
+        self: Self,
         X: InputData,
         y: Targets,
         **fit_params: dict[str, str],

@@ -11,6 +11,7 @@ from sklearn.base import clone
 from sklearn.cluster import KMeans, MiniBatchKMeans
 from sklearn.neighbors import NearestNeighbors
 from sklearn.utils import check_scalar
+from typing_extensions import Self
 
 from .. import InputData, Targets
 from ..distribution._density import DensityDistributor
@@ -54,62 +55,68 @@ class KMeansSMOTE(ClusterOverSampler):
 
             - If `int`, it is the seed used by the random number
             generator.
-            - If `RandomState` instance, it is the random number
+            - If `np.random.RandomState` instance, it is the random number
             generator.
             - If `None`, the random number generator is the `RandomState`
             instance used by `np.random`.
 
-        k_neighbors : int or object, default=5
+        k_neighbors:
             Defines the number of nearest neighbors to be used by SMOTE.
 
-            - If ``int``, this number is used to construct synthetic
+            - If `int`, this number is used to construct synthetic
             samples.
 
-            - If ``object``, an estimator that inherits from
-            :class:`sklearn.neighbors.base.KNeighborsMixin` that will be
+            - If `object`, an estimator that inherits from
+            `sklearn.neighbors.base.KNeighborsMixin` that will be
             used to find the number of nearest neighbors.
 
-        kmeans_estimator : None or object or int or float, default=None
+        kmeans_estimator:
             Defines the KMeans clusterer applied to the input space.
 
-            - If ``None``, :class:`sklearn.cluster.MiniBatchKMeans` is used which
+            - If `None`, `sklearn.cluster.MiniBatchKMeans` is used which
             tends to be better with large number of samples.
 
             - If KMeans object, then an instance from either
-            :class:`sklearn.cluster.KMeans` or :class:`sklearn.cluster.MiniBatchKMeans`.
+            `sklearn.cluster.KMeans` or `sklearn.cluster.MiniBatchKMeans`.
 
-            - If ``int``, the number of clusters to be used.
+            - If `int`, the number of clusters to be used.
 
-            - If ``float``, the proportion of the number of clusters over the number
+            - If `float`, the proportion of the number of clusters over the number
             of samples to be used.
 
-        imbalance_ratio_threshold : 'auto' or float, default='auto'
+        imbalance_ratio_threshold:
             The threshold of a filtered cluster. It can be any non-negative number or
-            ``'auto'`` to be calculated automatically.
+            `'auto'` to be calculated automatically.
 
-            - If ``'auto'``, the filtering threshold is calculated from the imbalance
+            - If `'auto'`, the filtering threshold is calculated from the imbalance
             ratio of the target for the binary case or the maximum of the target's
             imbalance ratios for the multiclass case.
 
-            - If ``float`` then it is manually set to this number.
+            - If `float` then it is manually set to this number.
 
             Any cluster that has an imbalance ratio smaller than the filtering threshold is
             identified as a filtered cluster and can be potentially used to generate
             minority class instances. Higher values increase the number of filtered
             clusters.
 
-        distances_exponent : 'auto' or float, default='auto'
+        distances_exponent:
             The exponent of the mean distance in the density calculation. It can be
-            any non-negative number or ``'auto'`` to be calculated automatically.
+            any non-negative number or `'auto'` to be calculated automatically.
 
-            - If ``'auto'`` then it is set equal to the number of
+            - If `'auto'` then it is set equal to the number of
             features. Higher values make the calculation of density more sensitive
             to the cluster's size i.e. clusters with large mean euclidean distance
             between samples are penalized.
 
-            - If ``float`` then it is manually set to this number.
+            - If `float` then it is manually set to this number.
 
-        raise_error : boolean, default=True
+        raise_error:
+            Raise an error when no samples are generated.
+
+            - If `True`, it raises an error when no filtered clusters are
+            identified and therefore no samples are generated.
+
+            - If `False`, it displays a warning.
 
         n_jobs:
             Number of CPU cores used.
@@ -119,23 +126,25 @@ class KMeansSMOTE(ClusterOverSampler):
             - If `-1` means using all processors.
 
     Attributes:
-        clusterer_ : object
-            A fitted :class:`sklearn.cluster.KMeans` or
-            :class:`sklearn.cluster.MiniBatchKMeans` instance.
+        oversampler_ (imblearn.over_sampling.SMOTE):
+            A fitted `imblearn.over_sampling.SMOTE` instance.
 
-        distributor_ : object
-            A fitted :class:`clover.distribution.DensityDistributor` instance.
+        clusterer_ (sklearn.cluster.KMeans | sklearn.cluster.MiniBatchKMeans):
+            A fitted `sklearn.cluster.KMeans` or `sklearn.cluster.MiniBatchKMeans` instance.
 
-        labels_ : array, shape (n_samples,)
+        distributor_ (clover.distribution.DensityDistributor):
+            A fitted `clover.distribution.DensityDistributor` instance.
+
+        labels_ (Labels):
             Cluster labels of each sample.
 
-        oversampler_ : object
-            A fitted :class:`imblearn.over_sampling.SMOTE` instance.
+        neighbors_ (None):
+            It is `None` since KMeans does not support this attribute.
 
-        random_state_ : object
-            An instance of ``RandomState`` class.
+        random_state_ (np.random.RandomState):
+            An instance of `np.random.RandomState` class.
 
-        sampling_strategy_ : dict
+        sampling_strategy_ (dict[int, int]):
             Actual sampling strategy.
 
     Examples:
@@ -162,8 +171,8 @@ class KMeansSMOTE(ClusterOverSampler):
     """
 
     def __init__(
-        self: KMeansSMOTE,
-        sampling_strategy: dict[int, int] | str = "auto",
+        self: Self,
+        sampling_strategy: dict[int, int] | str = 'auto',
         random_state: np.random.RandomState | int | None = None,
         k_neighbors: NearestNeighbors | int = 5,
         kmeans_estimator: KMeans | None = None,
@@ -181,7 +190,7 @@ class KMeansSMOTE(ClusterOverSampler):
         self.raise_error = raise_error
         self.n_jobs = n_jobs
 
-    def _check_estimators(self: KMeansSMOTE, X: InputData, y: Targets) -> KMeansSMOTE:
+    def _check_estimators(self: Self, X: InputData, y: Targets) -> Self:
         """Check various estimators."""
         # Check oversampler
         self.oversampler_ = SMOTE(
@@ -193,10 +202,14 @@ class KMeansSMOTE(ClusterOverSampler):
 
         # Check clusterer
         if self.kmeans_estimator is None:
-            self.clusterer_ = MiniBatchKMeans(random_state=self.random_state_)
+            self.clusterer_ = MiniBatchKMeans(random_state=self.random_state_, n_init='auto')
         elif isinstance(self.kmeans_estimator, int):
             check_scalar(self.kmeans_estimator, 'kmeans_estimator', int, min_val=1)
-            self.clusterer_ = MiniBatchKMeans(n_clusters=self.kmeans_estimator, random_state=self.random_state_)
+            self.clusterer_ = MiniBatchKMeans(
+                n_clusters=self.kmeans_estimator,
+                random_state=self.random_state_,
+                n_init='auto',
+            )
         elif isinstance(self.kmeans_estimator, float):
             check_scalar(
                 self.kmeans_estimator,
@@ -206,7 +219,7 @@ class KMeansSMOTE(ClusterOverSampler):
                 max_val=1.0,
             )
             n_clusters = round((X.shape[0] - 1) * self.kmeans_estimator + 1)
-            self.clusterer_ = MiniBatchKMeans(n_clusters=n_clusters, random_state=self.random_state)
+            self.clusterer_ = MiniBatchKMeans(n_clusters=n_clusters, random_state=self.random_state, n_init='auto')
         elif isinstance(self.kmeans_estimator, KMeans | MiniBatchKMeans):
             self.clusterer_ = clone(self.kmeans_estimator)
         else:
