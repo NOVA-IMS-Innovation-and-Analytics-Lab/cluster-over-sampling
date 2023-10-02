@@ -12,9 +12,10 @@ from imblearn.over_sampling import SMOTE
 from sklearn.base import clone
 from sklearn.neighbors import NearestNeighbors
 from sklearn.utils import check_scalar
-from somlearn import SOM
+from typing_extensions import Self
 
 from .. import InputData, Targets
+from ..clusterer import SOM
 from ..distribution._density import DensityDistributor
 from ._cluster import ClusterOverSampler
 
@@ -56,43 +57,48 @@ class SOMO(ClusterOverSampler):
 
             - If `int`, it is the seed used by the random number
             generator.
-            - If `RandomState` instance, it is the random number
+            - If `np.random.RandomState` instance, it is the random number
             generator.
             - If `None`, the random number generator is the `RandomState`
             instance used by `np.random`.
 
-        k_neighbors : int or object, default=5
+        k_neighbors:
             Defines the number of nearest neighbors to be used by SMOTE.
 
-            - If ``int``, this number is used to construct synthetic
+            - If `int`, this number is used to construct synthetic
             samples.
 
-            - If ``object``, an estimator that inherits from
-            :class:`sklearn.neighbors.base.KNeighborsMixin` that will be
+            - If `object`, an estimator that inherits from
+            `sklearn.neighbors.base.KNeighborsMixin` that will be
             used to find the number of nearest neighbors.
 
-        som_estimator : None or object or int or float, default=None
+        som_estimator:
             Defines the SOM clusterer applied to the input space.
 
-            - If ``None``, :class:`` is used which
+            - If `None`, `SOM` is used which
             tends to be better with large number of samples.
 
-            - If KMeans object, then an instance from either
-            :class:`sklearn.cluster.KMeans` or :class:`sklearn.cluster.MiniBatchKMeans`.
+            - If SOM object, then it is a `clover.clusterer.SOM` instance.
 
-            - If ``int``, the number of clusters to be used.
+            - If `int`, the number of clusters to be used.
 
-            - If ``float``, the proportion of the number of clusters over the number
+            - If `float`, the proportion of the number of clusters over the number
             of samples to be used.
 
-        distribution_ratio : float, default=0.8
+        distribution_ratio:
             The ratio of intra-cluster to inter-cluster generated samples. It is a
-            number in the :math:`[0.0, 1.0]` range. The default value is ``0.8``, a
+            number in the `[0.0, 1.0]` range. The default value is `0.8`, a
             number equal to the proportion of intra-cluster generated samples over
             the total number of generated samples. As the number decreases, less
             intra-cluster and more inter-cluster samples are generated.
 
-        raise_error : boolean, default=True
+        raise_error:
+            Raise an error when no samples are generated.
+
+            - If `True`, it raises an error when no filtered clusters are
+            identified and therefore no samples are generated.
+
+            - If `False`, it displays a warning.
 
         n_jobs:
             Number of CPU cores used.
@@ -102,26 +108,26 @@ class SOMO(ClusterOverSampler):
             - If `-1` means using all processors.
 
     Attributes:
-        clusterer_ : object
-            A fitted :class:`somlearn.SOM` instance.
+        oversampler_ (imblearn.over_sampling.SMOTE):
+            A fitted `imblearn.over_sampling.SMOTE` instance.
 
-        distributor_ : object
-            A fitted :class:`clover.distribution.DensityDistributor` instance.
+        clusterer_ (clover.clusterer.SOM):
+            A fitted `clover.clusterer.SOM` instance.
 
-        labels_ : array, shape (n_samples,)
-            Labels of each sample.
+        distributor_ (clover.distribution.DensityDistributor):
+            A fitted `clover.distribution.DensityDistributor` instance.
 
-        neighbors_ : array, (n_neighboring_pairs, 2) or None
+        labels_ (Labels):
+            Cluster labels of each sample.
+
+        neighbors_ (Neighbors):
             An array that contains all neighboring pairs with each row being
             a unique neighboring pair.
 
-        oversampler_ : object
-            A fitted :class:`imblearn.over_sampling.SMOTE` instance.
+        random_state_ (np.random.RandomState):
+            An instance of `np.random.RandomState` class.
 
-        random_state_ : object
-            An instance of ``RandomState`` class.
-
-        sampling_strategy_ : dict
+        sampling_strategy_ (dict[int, int]):
             Actual sampling strategy.
 
     Examples:
@@ -151,7 +157,7 @@ class SOMO(ClusterOverSampler):
     """
 
     def __init__(
-        self: SOMO,
+        self: Self,
         sampling_strategy: dict[int, int] | str = 'auto',
         random_state: np.random.RandomState | int | None = None,
         k_neighbors: NearestNeighbors | int = 5,
@@ -168,15 +174,8 @@ class SOMO(ClusterOverSampler):
         self.raise_error = raise_error
         self.n_jobs = n_jobs
 
-    def _check_estimators(self: SOMO, X: InputData, y: Targets) -> SOMO:
+    def _check_estimators(self: Self, X: InputData, y: Targets) -> Self:
         """Check various estimators."""
-        # Import SOM
-        try:
-            from somlearn import SOM
-        except ImportError as e:
-            msg = 'SOMO class requires the package `som-learn` to be installed.'
-            raise Exception(msg) from e
-
         # Check oversampler
         self.oversampler_ = SMOTE(
             sampling_strategy=self.sampling_strategy,

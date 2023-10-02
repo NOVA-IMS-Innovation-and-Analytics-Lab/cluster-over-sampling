@@ -21,14 +21,15 @@ has two submodules:
 
 from __future__ import annotations
 
-from nptyping import Float, Int, NDArray, Shape
+import numpy as np
+import numpy.typing as npt
 
 __all__: list[str] = []
 
-InputData = NDArray[Shape['*, *'], Float]
-Targets = NDArray[Shape['*'], Float]
-Labels = NDArray[Shape["*"], Int]
-Neighbors = NDArray[Shape["*, 2"], Int]
+InputData = npt.NDArray[np.float64]
+Targets = npt.NDArray[np.float64]
+Labels = npt.NDArray[np.int16]
+Neighbors = npt.NDArray[np.int16]
 MultiLabel = tuple[int, int]
 IntraDistribution = dict[MultiLabel, float]
 InterDistribution = dict[tuple[MultiLabel, MultiLabel], float]

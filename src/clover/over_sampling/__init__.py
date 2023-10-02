@@ -26,7 +26,9 @@ __all__: list[str] = [
     'generate_in_cluster',
 ]
 
-if find_spec('SOM') is not None:
+if find_spec('somoclu') is not None:
+    from ._gsomo import GeometricSOMO  # noqa: F401
+    from ._somo import SOMO  # noqa: F401
+
     __all__.append('SOMO')
-    if find_spec('GeometricSMOTE') is not None:
-        __all__.append('GeometricSOMO')
+    __all__.append('GeometricSOMO')

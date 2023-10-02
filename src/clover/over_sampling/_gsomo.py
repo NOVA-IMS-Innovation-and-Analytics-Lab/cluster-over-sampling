@@ -13,9 +13,10 @@ from gsmote import GeometricSMOTE
 from sklearn.base import clone
 from sklearn.neighbors import NearestNeighbors
 from sklearn.utils import check_scalar
-from somlearn import SOM
+from typing_extensions import Self
 
 from .. import InputData, Targets
+from ..clusterer import SOM
 from ..distribution import DensityDistributor
 from ._cluster import ClusterOverSampler
 
@@ -57,19 +58,20 @@ class GeometricSOMO(ClusterOverSampler):
 
             - If `int`, it is the seed used by the random number
             generator.
-            - If `RandomState` instance, it is the random number
+            - If `np.random.RandomState` instance, it is the random number
             generator.
             - If `None`, the random number generator is the `RandomState`
             instance used by `np.random`.
 
         k_neighbors:
-            Defines the number of nearest neighbors to be used by Geometric SMOTE.
+            Defines the number of nearest neighbors to be used by SMOTE.
 
             - If `int`, this number is used to construct synthetic
             samples.
 
-            - If `object`, then it belongs to the `sklearn.neighbors.NearestNeighbors` class
-            that will be used to find the number of nearest neighbors.
+            - If `object`, an estimator that inherits from
+            `sklearn.neighbors.base.KNeighborsMixin` that will be
+            used to find the number of nearest neighbors.
 
         truncation_factor:
             The type of truncation. The values should be in the `[-1.0, 1.0]` range.
@@ -84,9 +86,9 @@ class GeometricSOMO(ClusterOverSampler):
         som_estimator:
             Defines the SOM clusterer applied to the input space.
 
-            - If `None`, a `somlearn.SOM` instance with default parameters is used.
+            - If `None`, a `clover.clusterer.SOM` instance with default parameters is used.
 
-            - If `somlearn.SOM` object then is used with the given parameters.
+            - If `clover.clusterer.SOM` object then is used with the given parameters.
 
             - If `int`, the number of clusters to be used.
 
@@ -121,7 +123,7 @@ class GeometricSOMO(ClusterOverSampler):
 
         distribution_ratio:
             The ratio of intra-cluster to inter-cluster generated samples. It is a
-            number in the :math:`[0.0, 1.0]` range. The default value is `0.8`, a
+            number in the `[0.0, 1.0]` range. The default value is `0.8`, a
             number equal to the proportion of intra-cluster generated samples over
             the total number of generated samples. As the number decreases, less
             intra-cluster and more inter-cluster samples are generated.
@@ -141,15 +143,14 @@ class GeometricSOMO(ClusterOverSampler):
 
             - If `-1` means using all processors.
 
-
     Attributes:
-        oversampler_ (BaseOverSampler):
+        oversampler_ (gsmote.GeometricSMOTE):
             A fitted `gsmote.GeometricSMOTE` instance.
 
         clusterer_ (SOM):
-            A fitted `somlearn.SOM` instance.
+            A fitted `clovar.clusterer.SOM` instance.
 
-        distributor_ (BaseDistributor):
+        distributor_ (clover.distribution.DensityDistributor):
             A fitted `clover.distribution.DensityDistributor` instance.
 
         labels_ (Labels):
@@ -176,8 +177,8 @@ class GeometricSOMO(ClusterOverSampler):
         >>> y = np.append(y, 0)
         >>> # Make this a binary classification problem
         >>> y = y == 1
-        >>> somo = GeometricSOMO(random_state=42) # doctest: +SKIP
-        >>> X_res, y_res = somo.fit_resample(X, y) # doctest: +SKIP
+        >>> gsomo = GeometricSOMO(random_state=42) # doctest: +SKIP
+        >>> X_res, y_res = gsomo.fit_resample(X, y) # doctest: +SKIP
         >>> # Find the number of new samples in the middle blob
         >>> right, left = X_res[:, 0] > -5, X_res[:, 0] < 5 # doctest: +SKIP
         >>> n_res_in_middle = (right & left).sum() # doctest: +SKIP
@@ -192,7 +193,7 @@ class GeometricSOMO(ClusterOverSampler):
     """
 
     def __init__(
-        self: GeometricSOMO,
+        self: Self,
         sampling_strategy: dict[int, int] | str | float | Callable[[Targets], dict[int, int]] = 'auto',
         random_state: np.random.RandomState | int | None = None,
         k_neighbors: NearestNeighbors | int = 5,
@@ -219,7 +220,7 @@ class GeometricSOMO(ClusterOverSampler):
         self.raise_error = raise_error
         self.n_jobs = n_jobs
 
-    def _check_estimators(self: GeometricSOMO, X: InputData, y: Targets) -> GeometricSOMO:
+    def _check_estimators(self: Self, X: InputData, y: Targets) -> Self:
         """Check various estimators."""
         # Check oversampler
         self.oversampler_ = GeometricSMOTE(

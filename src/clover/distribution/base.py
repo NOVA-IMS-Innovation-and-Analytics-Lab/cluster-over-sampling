@@ -11,6 +11,7 @@ from collections import Counter
 import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.utils import check_array, check_X_y
+from typing_extensions import Self
 
 from .. import InputData, InterDistribution, IntraDistribution, Labels, Neighbors, Targets
 
@@ -24,24 +25,24 @@ class BaseDistributor(BaseEstimator):
     """
 
     def _intra_distribute(
-        self: BaseDistributor,
+        self: Self,
         X: InputData,
         y: Targets,
         labels: Labels | None,
         neighbors: Neighbors | None,
-    ) -> BaseDistributor:
+    ) -> Self:
         return self
 
     def _inter_distribute(
-        self: BaseDistributor,
+        self: Self,
         X: InputData,
         y: Targets,
         labels: Labels | None,
         neighbors: Neighbors | None,
-    ) -> BaseDistributor:
+    ) -> Self:
         return self
 
-    def _validate_fitting(self: BaseDistributor) -> BaseDistributor:
+    def _validate_fitting(self: Self) -> Self:
         # Check labels
         if len(self.labels_) != self.n_samples_:
             msg = (
@@ -92,12 +93,12 @@ class BaseDistributor(BaseEstimator):
         return self
 
     def _fit(
-        self: BaseDistributor,
+        self: Self,
         X: InputData,
         y: Targets,
         labels: Labels | None,
         neighbors: Neighbors | None,
-    ) -> BaseDistributor:
+    ) -> Self:
         if labels is not None:
             self._intra_distribute(X, y, labels, neighbors)
         if neighbors is not None:
@@ -105,12 +106,12 @@ class BaseDistributor(BaseEstimator):
         return self
 
     def fit(
-        self: BaseDistributor,
+        self: Self,
         X: InputData,
         y: Targets,
         labels: Labels | None = None,
         neighbors: Neighbors | None = None,
-    ) -> BaseDistributor:
+    ) -> Self:
         """Generate the intra-label and inter-label distribution.
 
         Args:
@@ -159,7 +160,7 @@ class BaseDistributor(BaseEstimator):
         return self
 
     def fit_distribute(
-        self: BaseDistributor,
+        self: Self,
         X: InputData,
         y: Targets,
         labels: Labels | None,

@@ -13,6 +13,7 @@ from warnings import catch_warnings, filterwarnings
 import numpy as np
 from sklearn.metrics.pairwise import euclidean_distances
 from sklearn.utils import check_scalar
+from typing_extensions import Self
 
 from .. import InputData, Labels, Neighbors, Targets
 from .base import BaseDistributor
@@ -23,7 +24,7 @@ class DensityDistributor(BaseDistributor):
 
     Samples are distributed based on the density of clusters.
 
-    Read more in the [user guide][user-guide].
+    Read more in the [user_guide].
 
     Args:
         filtering_threshold:
@@ -126,18 +127,18 @@ class DensityDistributor(BaseDistributor):
         ...     sampling_strategy={0:50, 1:40, 2:30},
         ...     random_state=0
         ... )
-        >>> labels = KMeans(random_state=0).fit_predict(X, y)
+        >>> labels = KMeans(random_state=0, n_init='auto').fit_predict(X, y)
         >>> density_distributor = DensityDistributor().fit(X, y, labels)
         >>> density_distributor.filtered_clusters_
-        [(2, 1), (4, 1), (6, 1), (0, 2), (3, 2), (2, 2), (4, 2)]
+        [(6, 1), (0, 1), (3, 1), (7, 1), (5, 2), (2, 2), (3, 2), (6, 2), (0, 2)]
         >>> density_distributor.intra_distribution_
-        {(2, 1): 0.4288774060... (4, 2): 0.0819060420...}
+        {(6, 1): 0.50604609281056... (0, 1): 0.143311766542165...}
         >>> density_distributor.inter_distribution_
         {}
     """
 
     def __init__(
-        self: DensityDistributor,
+        self: Self,
         filtering_threshold: float | str = 'auto',
         distances_exponent: float | str = 'auto',
         sparsity_based: bool = True,
@@ -149,11 +150,11 @@ class DensityDistributor(BaseDistributor):
         self.distribution_ratio = distribution_ratio
 
     def _check_parameters(
-        self: DensityDistributor,
+        self: Self,
         X: InputData,
         y: Targets,
         neighbors: Neighbors | None,
-    ) -> DensityDistributor:
+    ) -> Self:
         """Check distributor parameters."""
 
         # Filtering threshold
@@ -198,7 +199,7 @@ class DensityDistributor(BaseDistributor):
         self.distribution_ratio_ = self.distribution_ratio
         return self
 
-    def _identify_filtered_clusters(self: DensityDistributor, y: Targets) -> DensityDistributor:
+    def _identify_filtered_clusters(self: Self, y: Targets) -> Self:
         """Identify the filtered clusters."""
         # Generate multi-label
         multi_labels = list(zip(self.labels_, y, strict=True))
@@ -221,7 +222,7 @@ class DensityDistributor(BaseDistributor):
 
         return self
 
-    def _calculate_clusters_density(self: DensityDistributor, X: InputData, y: Targets) -> DensityDistributor:
+    def _calculate_clusters_density(self: Self, X: InputData, y: Targets) -> Self:
         """Calculate the density of the filtered clusters."""
         self.clusters_density_ = {}
 
@@ -260,12 +261,12 @@ class DensityDistributor(BaseDistributor):
         return self
 
     def _intra_distribute(
-        self: DensityDistributor,
+        self: Self,
         X: InputData,
         y: Targets,
         labels: Labels | None,
         neighbors: Neighbors | None,
-    ) -> DensityDistributor:
+    ) -> Self:
         """In the clusters distribution.
 
         Distribute the generated samples in each cluster based on their
@@ -293,12 +294,12 @@ class DensityDistributor(BaseDistributor):
         return self
 
     def _inter_distribute(
-        self: DensityDistributor,
+        self: Self,
         X: InputData,
         y: Targets,
         labels: Labels | None,
         neighbors: Neighbors | None,
-    ) -> DensityDistributor:
+    ) -> Self:
         """Between the clusters distribution.
 
         Distribute the generated samples between clusters based on their
@@ -340,12 +341,12 @@ class DensityDistributor(BaseDistributor):
         return self
 
     def _fit(
-        self: DensityDistributor,
+        self: Self,
         X: InputData,
         y: Targets,
         labels: Labels | None,
         neighbors: Neighbors | None,
-    ) -> DensityDistributor:
+    ) -> Self:
         # Check distributor parameters
         self._check_parameters(X, y, neighbors)
 
