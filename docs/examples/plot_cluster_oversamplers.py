@@ -29,7 +29,7 @@ OVERSAMPLERS = [
     SMOTE(random_state=RANDOM_STATE + 1),
     BorderlineSMOTE(random_state=RANDOM_STATE + 2),
 ]
-KMEANS = KMeans(random_state=RANDOM_STATE, n_clusters=100)
+KMEANS = KMeans(random_state=RANDOM_STATE, n_clusters=100, n_init='auto')
 AGGL = AgglomerativeClustering(n_clusters=100)
 
 
